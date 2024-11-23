@@ -7,7 +7,7 @@ class Awaiter {
    * @param {Number} cur
    */
   set current(cur) {
-    if (cur < this._current) if(this._queue.length) this._queue.shift()();
+    if (cur < this._current) if (this._queue.length) this._queue.shift()();
     this._current = cur;
   }
 

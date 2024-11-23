@@ -1,14 +1,13 @@
-const { execSync, spawnSync } = require("node:child_process");
+const { execSync } = require("node:child_process");
 const { writeFileSync } = require("node:fs");
+const path = require("node:path");
 const crypto = require("node:crypto");
 
-const { create, convert } = require("xmlbuilder2");
+const { create } = require("xmlbuilder2");
 const sanitize = require("sanitize-filename");
 const mime = require("mime-types");
 
 const Awaiter = require("./awaiter");
-const path = require("node:path");
-
 const awaiter = new Awaiter({ cap: 50 });
 
 const titleURL = "73129--mushoku-tensei-isekai-ittara-honki-dasu-ln";
@@ -27,7 +26,7 @@ const chapters = JSON.parse(
 console.time("Downloading");
 
 Promise.allSettled(
-  chapters.data.map(async (info, i) => {
+  chapters.data.slice(-50).map(async (info, i) => {
     await awaiter.next();
 
     console.timeLog("Downloading", `: Start item ${i + 1}`);
@@ -52,6 +51,8 @@ Promise.allSettled(
   })
 )
   .then((chapters) => {
+    lvl1Tags;
+    debugger;
     const volumes = new Map();
     chapters.forEach(({ value }) => {
       const { volumeId, chapter, binary } = value;
@@ -84,6 +85,9 @@ Promise.allSettled(
 // for (let i = 0; i < chapters.data.length; i += 51)
 // chaptersChunksToDownload.push(chapters.data.slice(i, i + 50));
 */
+
+const lvl1Tags = new Set();
+const attrs = new Map();
 
 function downloadChapter(chapter) {
   const chapterInfo = JSON.parse(
@@ -127,15 +131,15 @@ function downloadChapter(chapter) {
           const name = path.parse(src).name;
           const id = `img_${crypto.createHash("md5").update(name).digest("hex").slice(0, 16)}`;
 
-          binary.push({
-            "@id": id,
-            "@content-type": mime.lookup(src),
-            "#": Buffer.from(
-              execSync(`curl --location ${src}`, {
-                maxBuffer: 20 * 1024 * 1024,
-              })
-            ).toString("base64"),
-          });
+          // binary.push({
+          //   "@id": id,
+          //   "@content-type": mime.lookup(src),
+          //   "#": Buffer.from(
+          //     execSync(`curl --location ${src}`, {
+          //       maxBuffer: 20 * 1024 * 1024,
+          //     })
+          //   ).toString("base64"),
+          // });
 
           el = {
             image: {
@@ -152,8 +156,18 @@ function downloadChapter(chapter) {
       function parseElement(el) {
         switch (el.type) {
           case "doc":
-            return el.content.flatMap((par) => parseElement(par));
+            return el.content.flatMap((par) => {
+              lvl1Tags.add(par.type);
+              parseElement(par);
+            });
           case "paragraph":
+            if (el.attrs)
+              Object.keys(el.attrs).forEach((n) => {
+                const attr = attrs.get(n);
+                if (!attr) attrs.set(n, new Set([el.attrs[n]]));
+                else attr.add(el.attrs[n]);
+              });
+
             if (!el.content) return { "empty-line": {} };
 
             let parContent = [];
@@ -198,15 +212,15 @@ function downloadChapter(chapter) {
 
               const id = `img_${crypto.createHash("md5").update(image).digest("hex").slice(0, 16)}`;
 
-              binary.push({
-                "@id": id,
-                "@content-type": mime.lookup(path),
-                "#": Buffer.from(
-                  execSync(`curl --location ${url}`, {
-                    maxBuffer: 20 * 1024 * 1024,
-                  })
-                ).toString("base64"),
-              });
+              // binary.push({
+              //   "@id": id,
+              //   "@content-type": mime.lookup(path),
+              //   "#": Buffer.from(
+              //     execSync(`curl --location ${url}`, {
+              //       maxBuffer: 20 * 1024 * 1024,
+              //     })
+              //   ).toString("base64"),
+              // });
 
               return {
                 image: {
@@ -247,7 +261,8 @@ function downloadChapter(chapter) {
       fb2Chapter.section["#"].push(...parseElement(chapterContent));
       break;
     default:
-      break;
+      const a = chapterInfo.data.content;
+      debugger;
   }
 
   return {
