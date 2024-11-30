@@ -10,75 +10,130 @@ const mime = require("mime-types");
 const Awaiter = require("./awaiter");
 const awaiter = new Awaiter({ cap: 50 });
 
-const titleURL = "73129--mushoku-tensei-isekai-ittara-honki-dasu-ln";
+const titleURL = "6684--kumo-desu-ga-nani-ka-novel";
 const titleInfo = JSON.parse(
   execSync(
     `curl --location --globoff "https://api.mangalib.me/api/manga/${titleURL}?fields[]=summary&fields[]=authors&fields[]=artists" --header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0"`
   )
 );
 
-const chapters = JSON.parse(
+let { data: chData } = JSON.parse(
   execSync(
     `curl --location "https://api.mangalib.me/api/manga/${titleURL}/chapters" --header "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0"`
   )
 );
 
+chData.sort((a, b) => {
+  const volDiff = parseInt(a.volume, 10) - parseInt(b.volume, 10);
+  if (volDiff !== 0) return volDiff;
+
+  const [, aNum, aSec] = a.number.match(/(\d+)\.?(\d*)/);
+  const [, bNum, bSec] = b.number.match(/(\d+)\.?(\d*)/);
+  return aNum - bNum || aSec - bSec;
+});
+
 console.time("Downloading");
 
-Promise.allSettled(
-  chapters.data.slice(-50).map(async (info, i) => {
-    await awaiter.next();
+const chsBy50 = [];
 
-    console.timeLog("Downloading", `: Start item ${i + 1}`);
+for (let i = 0; i < chData.length; i += 50) chsBy50.push(chData.slice(i, i + 50));
 
-    let chapter, binary;
+chsBy50
+  .map((chs) => {
+    return chs.map(async (chap, i) => {
+      await awaiter.next();
+
+      console.log("+1");
+
+      console.timeLog("Downloading", `: Start item ${i + 1}`);
+
+      let chapter, binary;
+      try {
+        const ch = downloadChapter(chap);
+        chapter = ch.chapter;
+        binary = ch.binary;
+      } catch (e) {
+        console.error(e);
+      }
+
+      console.timeLog("Downloading", `: End item ${i + 1}`);
+
+      return {
+        volumeId: chap.volume,
+        chapterId: chap.number,
+        chapter,
+        binary,
+      };
+    });
+  })
+  .forEach(async (promisedChs, index) => {
     try {
-      const ch = downloadChapter(info);
-      chapter = ch.chapter;
-      binary = ch.binary;
+      const chs = await Promise.all(promisedChs);
+      printBook(
+        index + 1,
+        chs.map((ch) => ch.chapter),
+        chs.map((ch) => ch.binary)
+      );
     } catch (e) {
       console.error(e);
+      debugger;
     }
-
-    console.timeLog("Downloading", `: End item ${i + 1}`);
-
-    return {
-      volumeId: info.volume,
-      chapterId: info.number,
-      chapter,
-      binary,
-    };
-  })
-)
-  .then((chapters) => {
-    lvl1Tags;
-    debugger;
-    const volumes = new Map();
-    chapters.forEach(({ value }) => {
-      const { volumeId, chapter, binary } = value;
-
-      const vol = volumes.get(volumeId);
-      if (vol) {
-        vol.chapters.push(chapter);
-        vol.binary.push(...binary);
-      } else
-        volumes.set(volumeId, {
-          volumeId,
-          chapters: chapter ? [chapter] : [],
-          binary: binary ?? [],
-        });
-    });
-
-    volumes.forEach(({ volumeId, chapters, binary }) => {
-      printBook(volumeId, chapters, binary);
-    });
-  })
-  .catch((e) => {
-    console.error(e);
-  })
-  .finally(() => {
-    console.timeEnd("Downloading");
   });
+
+// Promise.allSettled(
+//   chData.slice(-50).map(async (info, i) => {
+//     await awaiter.next();
+
+//     console.timeLog("Downloading", `: Start item ${i + 1}`);
+
+//     let chapter, binary;
+//     try {
+//       const ch = downloadChapter(info);
+//       chapter = ch.chapter;
+//       binary = ch.binary;
+//     } catch (e) {
+//       console.error(e);
+//     }
+
+//     console.timeLog("Downloading", `: End item ${i + 1}`);
+
+//     return {
+//       volumeId: info.volume,
+//       chapterId: info.number,
+//       chapter,
+//       binary,
+//     };
+//   })
+// )
+//   .then((chapters) => {
+//     lvl1Tags;
+//     debugger;
+//     const volumes = new Map();
+//     chapters.forEach(({ value }) => {
+//       const { volumeId, chapter, binary } = value;
+
+//       const vol = volumes.get(volumeId);
+//       if (vol) {
+//         vol.chapters.push(chapter);
+//         vol.binary.push(...binary);
+//       } else
+//         volumes.set(volumeId, {
+//           volumeId,
+//           chapters: chapter ? [chapter] : [],
+//           binary: binary ?? [],
+//         });
+//     });
+
+//     volumes.forEach(({ volumeId, chapters, binary }) => {
+//       printBook(volumeId, chapters, binary);
+//     });
+//   })
+//   .catch((e) => {
+//     console.error(e);
+//   })
+//   .finally(() => {
+//     console.timeEnd("Downloading");
+//   });
 
 /* const chaptersChunksToDownload = [];
 
@@ -104,7 +159,7 @@ function downloadChapter(chapter) {
       "#": [
         {
           title: {
-            p: chapterInfo.data.name,
+            p: `${chapterInfo.data.number}: ${chapterInfo.data.name}`,
           },
         },
       ],
@@ -113,15 +168,15 @@ function downloadChapter(chapter) {
 
   switch (typeof chapterContent) {
     case "string":
-      const texts = (
-        chapterContent.match(/<[a-z]+? [\s\S]*?\/[a-z]*?>/g) ?? [chapterContent]
-      ).flatMap((str) => {
-        return str
-          .replaceAll(/<.?p.*?>/g, "")
-          .replaceAll("&nbsp;", " ")
-          .split("<br />\r\n")
-          .map((str) => str.trim());
-      });
+      const texts = (chapterContent.match(/<p+?[\s\S]*?\/p+?>/g) ?? [chapterContent]).flatMap(
+        (str) => {
+          return str
+            .replaceAll(/<.?p.*?>/g, "")
+            .replaceAll("&nbsp;", " ")
+            .split("<br />\r\n")
+            .map((str) => str.trim());
+        }
+      );
 
       texts.forEach((text) => {
         let el;
@@ -131,15 +186,15 @@ function downloadChapter(chapter) {
           const name = path.parse(src).name;
           const id = `img_${crypto.createHash("md5").update(name).digest("hex").slice(0, 16)}`;
 
-          // binary.push({
-          //   "@id": id,
-          //   "@content-type": mime.lookup(src),
-          //   "#": Buffer.from(
-          //     execSync(`curl --location ${src}`, {
-          //       maxBuffer: 20 * 1024 * 1024,
-          //     })
-          //   ).toString("base64"),
-          // });
+          binary.push({
+            "@id": id,
+            "@content-type": mime.lookup(src),
+            "#": Buffer.from(
+              execSync(`curl --location ${src}`, {
+                maxBuffer: 20 * 1024 * 1024,
+              })
+            ).toString("base64"),
+          });
 
           el = {
             image: {
@@ -212,15 +267,15 @@ function downloadChapter(chapter) {
 
               const id = `img_${crypto.createHash("md5").update(image).digest("hex").slice(0, 16)}`;
 
-              // binary.push({
-              //   "@id": id,
-              //   "@content-type": mime.lookup(path),
-              //   "#": Buffer.from(
-              //     execSync(`curl --location ${url}`, {
-              //       maxBuffer: 20 * 1024 * 1024,
-              //     })
-              //   ).toString("base64"),
-              // });
+              binary.push({
+                "@id": id,
+                "@content-type": mime.lookup(path),
+                "#": Buffer.from(
+                  execSync(`curl --location ${url}`, {
+                    maxBuffer: 20 * 1024 * 1024,
+                  })
+                ).toString("base64"),
+              });
 
               return {
                 image: {
