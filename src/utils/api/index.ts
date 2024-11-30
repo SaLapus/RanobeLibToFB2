@@ -5,7 +5,23 @@ import { TitleInfo } from "../../types/api/Title";
 
 import rS from "./requestSuppert";
 
-export const fetchQueryTitles = rS(async function fetchQueryTitles(titleQuery: string) {
+export interface fetchedQueryTitle {
+  id: number;
+  rus_name: string;
+  orig_name: string;
+  type: string;
+  status: string;
+  year: string;
+  slug_url: string;
+  cover: {
+    default: string;
+    thumb: string;
+  };
+}
+
+export const fetchQueryTitles = rS(async function fetchQueryTitles(
+  titleQuery: string
+): Promise<fetchedQueryTitle[]> {
   const res = await fetch(
     `https://api.mangalib.me/api/manga?fields[]=rate_avg&fields[]=rate&fields[]=releaseDate&q=${titleQuery}&site_id[]=3`
   );
@@ -17,6 +33,7 @@ export const fetchQueryTitles = rS(async function fetchQueryTitles(titleQuery: s
   if (!data.length) return [];
 
   return data.map((title) => ({
+    id: title.id,
     rus_name: title.rus_name,
     orig_name: title.name,
     type: title.type.label,
