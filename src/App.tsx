@@ -1,35 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+
+import { Search } from "./components/Search";
+
+import { fetchTitleInfo, fetchChaptersInfo } from "./utils/api";
+import { TitleInfo as TS } from "./types/api/Title";
+import { Data as ChapterInfo } from "./types/api/ChaptersInfo";
+
+import "./App.css";
+import { TitleInfo } from "./components/TitleInfo";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [slug, setSlug] = useState("");
+
+  const [info, setInfo] = useState<TS>();
+  const [chaptersInfo, setChaptersInfo] = useState<ChapterInfo[]>();
+
+  useEffect(() => {
+    console.log("effect");
+    
+    fetchTitleInfo(slug).then(setInfo);
+    fetchChaptersInfo(slug).then(setChaptersInfo);
+  }, [slug]);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Search onValue={setSlug} />
+      {(slug && info && chaptersInfo) ? <TitleInfo info={info} chaptersInfo={chaptersInfo} /> : "⚙️Грузимся"}
     </>
-  )
+  );
 }
 
-export default App
+export default App;
