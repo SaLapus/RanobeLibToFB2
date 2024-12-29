@@ -1,4 +1,4 @@
-import { fetchedQueryTitle } from "../../../utils/api";
+import { fetchedQueryTitle } from "../../utils/api";
 
 import styles from "./SNovel.module.css";
 
