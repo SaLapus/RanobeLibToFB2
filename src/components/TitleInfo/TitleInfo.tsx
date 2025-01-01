@@ -1,6 +1,6 @@
 import { Data as CI } from "../../types/api/ChaptersInfo";
 import { TitleInfo as TI } from "../../types/api/Title";
-import { Info } from "./Info";
+import { Info } from "../Info";
 
 interface TitleInfoProps {
   info: TI;
