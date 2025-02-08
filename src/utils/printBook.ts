@@ -7,8 +7,8 @@ import { TitleInfo } from "../types/api/Title";
 export default function printBook(
   titleInfo: TitleInfo,
   volumeId: string,
-  chapters: FB2.Chapter,
-  binary = []
+  chapters: FB2.Chapter[],
+  binary: FB2.Binary[] = []
 ) {
   const bookTemplate = {
     FictionBook: {
@@ -17,8 +17,8 @@ export default function printBook(
       description: {
         "title-info": {
           author: {
-            "first-name": titleInfo.authors[0].name.split(" ").shift(),
-            "last-name": titleInfo.authors[0].name.split(" ").pop(),
+            "first-name": titleInfo.authors[0]?.name.split(" ").shift(),
+            "last-name": titleInfo.authors[0]?.name.split(" ").pop(),
           },
           "book-title": `${titleInfo.eng_name} ${volumeId}`,
           lang: "ru",
@@ -32,12 +32,13 @@ export default function printBook(
   };
 
   const book = create(bookTemplate);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const xml = book.end({ prettyPrint: true });
 
   saveFile(`${sanitize(`${titleInfo.eng_name} ${volumeId}`)}.fb2`, xml);
 }
 
-function saveFile(fileName: string, data: string, type = "text/plain") {
+function saveFile(fileName: string, data: string, type = "application/fb2") {
   // Создаём Blob с переданными данными
   const blob = new Blob([data], { type });
 
