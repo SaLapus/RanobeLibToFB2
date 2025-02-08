@@ -12,7 +12,7 @@ export interface TitleInfo {
   type: Type;
   summary: string;
   is_licensed: boolean;
-  authors: Author[];
+  authors: (Author | undefined)[];
   model: string;
   status: Status;
   artists: Artist[];

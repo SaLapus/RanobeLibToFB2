@@ -55,7 +55,7 @@ export interface Attachment {
 }
 
 export type ChapterObjects = Doc | Paragraph | Image | HardBrake | TextContent;
-export type Content = Extract<ChapterObjects, { content: any }>;
+export type Content = Extract<ChapterObjects, { content: unknown }>;
 
 export interface Doc {
   type: "doc";

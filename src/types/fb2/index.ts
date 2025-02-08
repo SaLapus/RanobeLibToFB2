@@ -16,6 +16,7 @@ export interface Paragraph {
 }
 
 export interface EmptyLine {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   "empty-line": {};
 }
 export interface Image {
