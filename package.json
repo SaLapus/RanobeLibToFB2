@@ -15,10 +15,12 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sanitize-filename": "^1.6.3",
-    "xmlbuilder2": "^3.1.1"
+    "xmlbuilder2": "^3.1.1",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@redux-devtools/extension": "^3.3.0",
     "@types/mime-types": "^2.1.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
