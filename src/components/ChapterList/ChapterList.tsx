@@ -1,50 +1,70 @@
-import { useState } from "react";
-import { Data as CI } from "../../types/api/ChaptersInfo";
+import { useShallow } from "zustand/react/shallow";
 
-interface ChapterListProps {
-  chaptersInfo: CI[];
-}
+import { chaptersList } from "../../pages/Title/Title.module.css";
+import { container, chapter_controls, chapter, volume } from "./ChapterList.module.css";
 
-export function ChapterList({ chaptersInfo }: ChapterListProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [checkedChapters, changeChapters] = useState<Map<number, CI>>(new Map<number, CI>());
+import { useInfoStore, useChapterStore } from "../../hooks/state/state";
+import { groupBy } from "../../utils/cmpChapters";
+
+export function ChapterList() {
+  const chaptersInfo = useInfoStore((state) => state.chaptersInfo);
+  const [, addChapters, toggleChapter, deleteChapters, hasChapter] = useChapterStore(
+    useShallow((state) => [
+      state.chapters,
+      state.addChapters,
+      state.toggleChapter,
+      state.deleteChapters,
+      state.hasChapter,
+    ])
+  );
+
+  if (!chaptersInfo) return null;
+
+  const groupedChapters = groupBy("volume", chaptersInfo);
 
   return (
-    <div>
-      {chaptersInfo
-        .sort((a, b) => {
-          const volDiff = parseInt(a.volume, 10) - parseInt(b.volume, 10);
-          if (volDiff !== 0) return volDiff;
+    <div className={`${chaptersList} ${container}`}>
+      <div className="controls">
+        <div className={chapter_controls}>
+          <span></span>
+          <span>Том</span>
+          <span>Глава</span>
+          <span>Название</span>
+        </div>
 
-          const [, aNum, aSec] = a.number.match(/(\d+)\.?(\d*)/)!;
-          const [, bNum, bSec] = b.number.match(/(\d+)\.?(\d*)/)!;
-          return parseInt(aNum, 10) - parseInt(bNum, 10) || parseInt(aSec, 10) - parseInt(bSec, 10);
-        })
-        .map((ch) => {
-          return (
-            <div key={ch.id}>
-              <span>
-                <input
-                  type="checkbox"
-                  name=""
-                  id={`chapter_${ch.id}`}
-                  onChange={(e) =>
-                    changeChapters((state) => {
-                      if (e.target.value) state.set(ch.id, ch);
-                      else state.delete(ch.id);
-                      return state;
-                    })
-                  }
-                />
-              </span>
-              <span>
-                Том {ch.volume} Глава {ch.number}
-              </span>
-
-              <span>{ch.name ? " - " + ch.name : ""}</span>
-            </div>
-          );
-        })}
+        <label htmlFor="selectAll">Выбрать все</label>
+        <input
+          type="checkbox"
+          name=""
+          id="selectAll"
+          onChange={(event) => {
+            if (event.target.checked) addChapters(groupedChapters);
+            else deleteChapters();
+          }}
+        />
+      </div>
+      {groupedChapters.map(([vol, chs]) => (
+        <div key={vol} className={volume}>
+          {chs.map((ch) => {
+            return (
+              <div key={ch.id} className={chapter} onClick={() => toggleChapter(vol, ch)}>
+                <span>
+                  <input
+                    type="checkbox"
+                    name=""
+                    id={`chapter_${ch.id}`}
+                    checked={hasChapter(ch.id)}
+                    onChange={() => {}}
+                  />
+                </span>
+                <span>Том {ch.volume} </span>
+                <span>Глава {ch.number} </span>
+                <span>{ch.name ? " - " + ch.name : ""}</span>
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   );
 }

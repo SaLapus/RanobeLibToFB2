@@ -1,0 +1,44 @@
+.container {
+  overflow-y: scroll;
+
+  max-height: 2fr;
+}
+
+.volume:nth-child(odd) {
+  background-color: #535353;
+}
+
+.chapter_controls {
+  /* position: sticky; */
+
+  display: grid;
+  grid-template-columns: 2rem 5rem 5rem 1fr;
+  grid-template-rows: 1fr;
+  grid-gap: 10px;
+}
+
+.chapter_controls > * {
+  width: 100%;
+  max-width: max-content;
+}
+
+.chapter {
+  display: grid;
+  grid-template-columns: 2rem 5rem 5rem 1fr;
+  grid-template-rows: 1fr;
+  grid-gap: 10px;
+
+  width: 100%;
+  height: max-content;
+
+  cursor: pointer;
+}
+
+.chapter > * {
+  width: 100%;
+  max-width: max-content;
+}
+
+.chapter:hover {
+  background-color: #575757;
+}
