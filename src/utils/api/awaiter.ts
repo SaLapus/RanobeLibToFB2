@@ -1,3 +1,7 @@
+interface AwaiterOptions {
+  cap: number;
+}
+
 export default class Awaiter {
   private cap: number = 50;
   private _current = 0;
@@ -12,7 +16,7 @@ export default class Awaiter {
     return this._current;
   }
 
-  constructor({ cap }: AwaiterOptions = {cap: 50}) {
+  constructor({ cap }: AwaiterOptions = { cap: 50 }) {
     this.cap = cap;
   }
 
@@ -24,8 +28,4 @@ export default class Awaiter {
       this.current -= 1;
     }, 60_000);
   }
-}
-
-interface AwaiterOptions {
-  cap: number;
 }

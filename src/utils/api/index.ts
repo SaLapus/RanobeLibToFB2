@@ -3,7 +3,7 @@ import { Root as ChapterInfo } from "../../types/api/ChaptersInfo";
 import { Root as Chapter } from "../../types/api/Chapter";
 import { TitleInfo } from "../../types/api/Title";
 
-import rS from "./requestSuppert";
+import rS from "./requestSupport";
 
 export interface fetchedQueryTitle {
   id: number;
@@ -75,12 +75,13 @@ export const fetchChapter = rS(async function fetchChapter(
   volume: string,
   number: string
 ) {
-  let res: Response;
-  do {
-    res = await fetch(
-      `https://api.mangalib.me/api/manga/${slug_url}/chapter?branch_id=${branch_id}&volume=${volume}&number=${number}`
-    );
-  } while (res.ok);
+  const res = await fetch(
+    `https://api.mangalib.me/api/manga/${slug_url}/chapter?branch_id=${branch_id}&volume=${volume}&number=${number}`
+  );
+
+  
+
+  if (!res.ok) throw `Not OK Responce: fetchChapter\nCode: ${res.status}`;
 
   const { data }: Chapter = await res.json();
   return data;
