@@ -1,26 +1,31 @@
+import { useShallow } from "zustand/react/shallow";
+
+import { titlePage } from "./Title.module.css";
+
 import { TitleInfo } from "../../components/TitleInfo";
-
-import { TitleInfo as TI } from "../../types/api/Title";
-import { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
-import type { Pages } from "../../App";
 import ChapterList from "../../components/ChapterList";
+import { DownloadSettings } from "../../components/DownloadSettings";
 
-interface TitlePageProps {
-  to: (page: Pages) => void;
-  slug: string;
-  info: TI;
-  chaptersInfo: ChapterInfo[];
-}
+import { useInfoStore } from "../../hooks/state/state";
 
-export function Title({ slug, info, chaptersInfo }: TitlePageProps) {
-  return slug ? (
-    info && chaptersInfo ? (
-      <>
-        <TitleInfo info={info} chaptersInfo={chaptersInfo} />
-        <ChapterList chaptersInfo={chaptersInfo} />
-      </>
-    ) : (
-      "⚙️Грузимся"
-    )
-  ) : undefined;
+// import type { Pages } from "../../App";
+
+// interface TitlePageProps {
+//   // to: (page: Pages) => void;
+// }
+
+export function Title(/* props: TitlePageProps */) {
+  const [titleInfo, chaptersInfo] = useInfoStore(
+    useShallow((state) => [state.titleInfo, state.chaptersInfo])
+  );
+
+  return titleInfo && chaptersInfo ? (
+    <div className={titlePage}>
+      <TitleInfo />
+      <DownloadSettings />
+      <ChapterList />
+    </div>
+  ) : (
+    <div>⚙️Грузимся</div>
+  );
 }

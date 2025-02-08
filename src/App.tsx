@@ -1,50 +1,47 @@
 import { useEffect, useState } from "react";
-
-import Search from "./pages/Search";
-
-import { fetchTitleInfo, fetchChaptersInfo } from "./utils/api";
-
-import { TitleInfo as TI } from "./types/api/Title";
-import { Data as ChapterInfo } from "./types/api/ChaptersInfo";
+import { useShallow } from "zustand/react/shallow";
 
 import "./App.css";
+
+import Search from "./pages/Search";
 import Title from "./pages/Title";
+
+import { useInfoStore } from "./hooks/state/state";
 
 export type Pages = "search" | "title";
 
 function App() {
-  const [slug, setSlug] = useState("");
-
   const [page, setPage] = useState<Pages>("search");
 
-  const [info, setInfo] = useState<TI>();
-  const [chaptersInfo, setChaptersInfo] = useState<ChapterInfo[]>();
+  const [slug, setSlug, fetchInfo] = useInfoStore(
+    useShallow((state) => [state.slug, state.setSlug, state.fetchInfo])
+  );
 
   useEffect(() => {
     console.log("effect fetch title");
 
     if (!slug) return;
+    fetchInfo(slug);
 
-    fetchTitleInfo(slug).then(setInfo);
-    fetchChaptersInfo(slug).then(setChaptersInfo);
-  }, [slug]);
+    setPage("title");
+  }, [slug, fetchInfo]);
 
   function renderPage() {
     switch (page) {
       case "title":
-        return (
-          info &&
-          chaptersInfo && <Title to={setPage} slug={slug} info={info} chaptersInfo={chaptersInfo} />
-        );
+        return <Title /* to={setPage} */ />;
+
       case "search":
       default:
         return <Search to={setPage} onValue={setSlug} />;
     }
   }
-  return <>
-    <h1>FB2Creator</h1>
-    <>{renderPage()}</>
-  </>;
+  return (
+    <>
+      <h1>FB2Creator</h1>
+      <>{renderPage()}</>
+    </>
+  );
 }
 
 export default App;
