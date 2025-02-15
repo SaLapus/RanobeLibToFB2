@@ -1,3 +1,5 @@
+/* eslint-disable no-debugger */
+
 import { create } from "xmlbuilder2";
 import sanitize from "sanitize-filename";
 
@@ -31,9 +33,10 @@ export default function printBook(
     },
   };
 
+  debugger;
+
   const book = create(bookTemplate);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const xml = book.end({ prettyPrint: true });
+  const xml = book.end({ prettyPrint: false });
 
   saveFile(`${sanitize(`${titleInfo.eng_name} ${volumeId}`)}.fb2`, xml);
 }

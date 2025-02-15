@@ -1,6 +1,8 @@
 /* eslint-disable no-debugger */
 
-import mime from "mime-types";
+import mime from "./mimeBicycle";
+
+import { fetch } from "@tauri-apps/plugin-http";
 
 import * as Chapter from "../types/api/Chapter";
 import * as FB2 from "../types/fb2";
@@ -39,51 +41,36 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
           .map((str) => str.trim());
       });
 
-      texts.forEach(async (text) => {
+      const elementsPromises = texts.map(async (text) => {
         let el: FB2.Paragraph | FB2.Image | FB2.EmptyLine;
         if (text.match(/<img [\s\S]*?\/>/)) {
           const [, src] = text.match(/<img [\s\S]*?src="([\s\S]*?)" \/>/)!;
 
-          const parsedUrl = new URL(src);
+          console.log(1);
 
-          const pathname = parsedUrl.pathname;
-          const name = pathname.substring(pathname.lastIndexOf("/") + 1);
+          const image = await fetchImageAsFB2Binary(src);
 
-          const encoder = new TextEncoder();
-          const data = encoder.encode(name);
-          const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-          const first16Bytes = new Uint8Array(hashBuffer).slice(0, 16);
-          const hashHex = Array.from(first16Bytes)
-            .map((byte) => byte.toString(16).padStart(2, "0"))
-            .join("");
+          console.log(2);
 
-          const id = `img_${hashHex}`;
-
-          const req = new Request(src, { mode: "no-cors" });
-
-          const base64Image = await fetch(req)
-            .then((res) => res.arrayBuffer())
-            .then((buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer))))
-            .catch((e) => console.error(e));
-
-          if (!base64Image) console.error("No Image Bytes Received");
-          else
-            binary.push({
-              "@id": id,
-              "@content-type": mime.lookup(src),
-              "#": base64Image,
-            });
+          if (image) binary.push(image);
 
           el = {
             image: {
-              "@l:href": `#${id}`,
+              "@l:href": `#${image?.["@id"]}`,
             },
           };
         } else if (text.length > 0) el = { p: text };
         else el = { "empty-line": {} };
 
-        fb2Chapter.section["#"].push(el);
+        return el;
       });
+      const elements = await Promise.allSettled(elementsPromises);
+
+      elements.filter((el) => el.status === "rejected").forEach((el) => console.error(el.reason));
+
+      fb2Chapter.section["#"].push(
+        ...elements.filter((el) => el.status === "fulfilled").map((el) => el.value)
+      );
       break;
     }
     case "object": {
@@ -130,45 +117,18 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
 
           case "image": {
             return await Promise.all(
-              el.attrs.images.map(async ({ image }) => {
-                const path = chapterInfo.attachments.find(({ name }) => name === image)?.url;
+              el.attrs.images.map(async ({ image: image_src }) => {
+                const path = chapterInfo.attachments.find(({ name }) => name === image_src)?.url;
                 const src = "https://ranobelib.me" + path;
 
                 if (!path) debugger;
 
-                const parsedUrl = new URL(src);
-
-                const pathname = parsedUrl.pathname;
-                const name = pathname.substring(pathname.lastIndexOf("/") + 1);
-
-                const encoder = new TextEncoder();
-                const data = encoder.encode(name);
-                const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-                const first16Bytes = new Uint8Array(hashBuffer).slice(0, 16);
-                const hashHex = Array.from(first16Bytes)
-                  .map((byte) => byte.toString(16).padStart(2, "0"))
-                  .join("");
-
-                const id = `img_${hashHex}`;
-
-                const req = new Request(src, { mode: "no-cors" });
-
-                const base64Image = await fetch(req)
-                  .then((res) => res.arrayBuffer())
-                  .then((buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer))))
-                  .catch((e) => console.error(e));
-
-                if (!base64Image) console.error("No Image Bytes Received");
-                else
-                  binary.push({
-                    "@id": id,
-                    "@content-type": mime.lookup(src),
-                    "#": base64Image ?? "",
-                  });
+                const image = await fetchImageAsFB2Binary(src);
+                if (image) binary.push(image);
 
                 const temp: FB2.Image = {
                   image: {
-                    "@l:href": `#${id}`,
+                    "@l:href": `#${image?.["@id"]}`,
                   },
                 };
 
@@ -221,4 +181,41 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
     chapter: fb2Chapter,
     binary,
   };
+}
+
+async function fetchImageAsFB2Binary(src: string) {
+  const base64Image = await fetch(src)
+    .then((res) => res.arrayBuffer())
+    .then((buffer) =>
+      btoa([...new Uint8Array(buffer)].map((char) => String.fromCharCode(char)).join(""))
+    )
+    .catch((e) => console.error(e));
+
+  if (!base64Image) {
+    console.error("No Image Bytes Received");
+    return null;
+  } else console.log("Image Bytes Received");
+
+  return {
+    "@id": await parseUrlToHash(src),
+    "@content-type": mime.lookup(src),
+    "#": base64Image,
+  };
+}
+
+async function parseUrlToHash(src: string) {
+  const parsedUrl = new URL(src);
+
+  const pathname = parsedUrl.pathname;
+  const name = pathname.substring(pathname.lastIndexOf("/") + 1);
+
+  const encoder = new TextEncoder();
+  const data = encoder.encode(name);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const first16Bytes = new Uint8Array(hashBuffer).slice(0, 16);
+  const hashHex = Array.from(first16Bytes)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+
+  return `img_${hashHex}`;
 }

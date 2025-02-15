@@ -1,3 +1,4 @@
+/* eslint-disable no-debugger */
 import { useShallow } from "zustand/react/shallow";
 
 import { downloadSettings } from "../../pages/Title/Title.module.css";
@@ -26,17 +27,16 @@ export default function DownloadSettings() {
               return [
                 vol,
                 Promise.all(
-                  ch
-                    .sort(sortChapters("onlyByChapters"))
-                    .map(
-                      async (c) =>
-                        await fetchChapter(slug, undefined, c.volume, c.number).then(parseChapter)
-                    )
+                  ch.sort(sortChapters("onlyByChapters")).map(async (c) => {
+                    const chapters = await fetchChapter(slug, undefined, c.volume, c.number);
+                    return await parseChapter(chapters);
+                  })
                 ),
               ];
             })
             .forEach(async ([vol, promisedChapters]) => {
               const chs = await promisedChapters;
+              debugger;
               printBook(
                 titleInfo,
                 vol.toString(),
