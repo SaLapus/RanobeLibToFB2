@@ -3,14 +3,18 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "vite:dev": "vite",
+    "vite:build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "tcm:watch": "tcm -w -p \"src/**/*.module.css\" .",
     "check:up-to-date-types": "tcm --listDifferent -p \"src/**/*.module.css\" ."
   },
   "dependencies": {
+    "@tauri-apps/plugin-http": "^2.3.0",
+    "mime-standard": "^1.0.3",
     "mime-types": "^2.1.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -21,7 +25,9 @@
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@redux-devtools/extension": "^3.3.0",
+    "@tauri-apps/cli": "^2.2.7",
     "@types/mime-types": "^2.1.4",
+    "@types/node": "^22.13.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
