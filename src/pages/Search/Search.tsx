@@ -1,18 +1,17 @@
 import { SearchBar } from "../../components/SearchBar";
-import { fetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
+import { NovelsListItem } from "../../components/NovelsListItem";
+import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
 
-import type { Pages } from "../../App";
+import { List } from "antd";
+
 import { useEffect, useState } from "react";
-import { SNovels } from "../../components/SNovels";
 
-interface SearchProps {
-  to: (page: Pages) => void;
-  onValue: (slug: string) => void;
-}
+// interface SearchProps {
+// }
 
-export function Search({ to, onValue }: SearchProps) {
+export function Search() {
   const [q, setQuery] = useState("");
-  const [searchedNovels, setSearchedNovels] = useState<fetchedQueryTitle[]>([]);
+  const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
   // const [isActive, setActive] = useState(false);
 
   useEffect(() => {
@@ -28,7 +27,17 @@ export function Search({ to, onValue }: SearchProps) {
       <SearchBar onValue={setQuery} />
 
       {searchedNovels.length > 0 && (
-        <SNovels onValue={onValue} novels={searchedNovels} to={() => to("title")} />
+        <List
+          itemLayout="vertical"
+          size="default"
+          dataSource={searchedNovels}
+          renderItem={(title) => <NovelsListItem novel={title} />}
+          rowKey={"id"}
+          style={{
+            height: "100%",
+            overflowY: "scroll",
+          }}
+        />
       )}
     </>
   );

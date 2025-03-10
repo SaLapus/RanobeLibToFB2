@@ -3,6 +3,8 @@ import { useShallow } from "zustand/react/shallow";
 
 import "./App.css";
 
+import { ConfigProvider, Layout } from "antd";
+
 import Search from "./pages/Search";
 import Title from "./pages/Title";
 
@@ -13,12 +15,12 @@ export type Pages = "search" | "title";
 function App() {
   const [page, setPage] = useState<Pages>("search");
 
-  const [slug, setSlug, fetchInfo] = useInfoStore(
-    useShallow((state) => [state.slug, state.setSlug, state.fetchInfo])
-  );
+  const [slug, fetchInfo] = useInfoStore(useShallow((state) => [state.slug, state.fetchInfo]));
 
   useEffect(() => {
     console.log("effect fetch title");
+
+    console.log(slug);
 
     if (!slug) return;
     fetchInfo(slug);
@@ -33,14 +35,28 @@ function App() {
 
       case "search":
       default:
-        return <Search to={setPage} onValue={setSlug} />;
+        return <Search />;
     }
   }
   return (
-    <>
-      <h1>FB2Creator</h1>
-      <>{renderPage()}</>
-    </>
+    <ConfigProvider>
+      <Layout
+        style={{
+          height: "100%",
+        }}
+      >
+        <Layout.Header>
+          <h1>FB2Creator</h1>
+        </Layout.Header>
+        <Layout.Content
+          style={{
+            height: "100%",
+          }}
+        >
+          <>{renderPage()}</>
+        </Layout.Content>
+      </Layout>
+    </ConfigProvider>
   );
 }
 
