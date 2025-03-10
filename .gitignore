@@ -14,8 +14,8 @@ dist-ssr
 books
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode
+
 .idea
 .DS_Store
 *.suo
@@ -23,4 +23,7 @@ books
 *.njsproj
 *.sln
 *.sw?
+
+.yarn
 yarn.lock
+.yarnrc.yml
