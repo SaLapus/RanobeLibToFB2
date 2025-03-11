@@ -31,7 +31,7 @@ function App() {
   function renderPage() {
     switch (page) {
       case "title":
-        return <Title /* to={setPage} */ />;
+        return <Title />;
 
       case "search":
       default:
@@ -48,13 +48,7 @@ function App() {
         <Layout.Header>
           <h1>FB2Creator</h1>
         </Layout.Header>
-        <Layout.Content
-          style={{
-            height: "100%",
-          }}
-        >
-          <>{renderPage()}</>
-        </Layout.Content>
+        {renderPage()}
       </Layout>
     </ConfigProvider>
   );
