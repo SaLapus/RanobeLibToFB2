@@ -1,10 +1,9 @@
+import { Layout } from "antd";
 import { useShallow } from "zustand/react/shallow";
 
-import { titlePage } from "./Title.module.css";
-
-import { TitleInfo } from "../../components/TitleInfo";
 import ChapterList from "../../components/ChapterList";
 import { DownloadSettings } from "../../components/DownloadSettings";
+import { TitleInfo } from "../../components/TitleInfo";
 
 import { useInfoStore } from "../../hooks/state/state";
 
@@ -20,11 +19,15 @@ export function Title(/* props: TitlePageProps */) {
   );
 
   return titleInfo && chaptersInfo ? (
-    <div className={titlePage}>
-      <TitleInfo />
-      <DownloadSettings />
-      <ChapterList />
-    </div>
+    <Layout>
+      <Layout.Sider>
+        <TitleInfo />
+      </Layout.Sider>
+      <Layout.Content>
+        <DownloadSettings />
+        <ChapterList />
+      </Layout.Content>
+    </Layout>
   ) : (
     <div>⚙️Грузимся</div>
   );
