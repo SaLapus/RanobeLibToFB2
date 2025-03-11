@@ -1,8 +1,8 @@
+import { Flex, Image, List, Typography } from "antd";
+import { useShallow } from "zustand/react/shallow";
+
 import { useInfoStore } from "../../hooks/state/state";
 import { FetchedQueryTitle } from "../../utils/api";
-
-import { Image, List, Typography, Flex } from "antd";
-import { useShallow } from "zustand/react/shallow";
 
 interface NovelsListItemProps {
   novel: FetchedQueryTitle;
@@ -12,7 +12,12 @@ export default function NovelsListItem({ novel }: NovelsListItemProps) {
   const setSlug = useInfoStore(useShallow((state) => state.setSlug));
 
   return (
-    <List.Item onClick={() => setSlug(novel.slug_url)}>
+    <List.Item
+      onClick={() => setSlug(novel.slug_url)}
+      style={{
+        cursor: "pointer",
+      }}
+    >
       <Flex justify="space-evenly" align="center">
         <Image
           src={novel.cover.thumb}
