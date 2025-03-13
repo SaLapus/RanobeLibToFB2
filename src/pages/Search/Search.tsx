@@ -1,4 +1,4 @@
-import { Input, Layout, List } from "antd";
+import { Col, Input, Layout, Row } from "antd";
 import { useEffect, useState } from "react";
 
 import { NovelsListItem } from "../../components/NovelsListItem";
@@ -19,35 +19,34 @@ export function Search() {
   }, [q]);
 
   return (
-    <Layout>
-      <Layout.Content
+    <Layout.Content style={{}}>
+      <Input.Search
+        allowClear={true}
+        onSearch={setQuery}
+        placeholder="Искать вашу любимую новеллу"
         style={{
-          height: "100%",
+          width: "40rem",
+          marginInline: "calc(50% - 40rem / 2)", // Выравнивание по центру
+        }}
+      />
+      <Row
+        align={"middle"}
+        justify={"center"}
+        gutter={[24, 12]}
+        style={{
+          overflowY: "scroll",
+          height: "calc(100svh - 100px)",
+          padding: "24px",
+
         }}
       >
-        <Input.Search
-          allowClear={true}
-          onSearch={setQuery}
-          placeholder="Искать вашу любимую новеллу"
-          style={{
-            width: "20rem",
-          }}
-        />
-
-        {searchedNovels.length > 0 && (
-          <List
-            itemLayout="vertical"
-            size="default"
-            dataSource={searchedNovels}
-            renderItem={(title) => <NovelsListItem novel={title} />}
-            rowKey={"id"}
-            style={{
-              height: "100%",
-              overflowY: "scroll",
-            }}
-          />
-        )}
-      </Layout.Content>
-    </Layout>
+        {searchedNovels.length > 0 &&
+          searchedNovels.map((title) => (
+            <Col key={title.id} span={13}>
+              <NovelsListItem novel={title} />
+            </Col>
+          ))}
+      </Row>
+    </Layout.Content>
   );
 }
