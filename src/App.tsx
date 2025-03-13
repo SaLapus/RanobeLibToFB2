@@ -3,7 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import "./App.css";
 
-import { ConfigProvider, Layout } from "antd";
+import { ConfigProvider, Layout, theme } from "antd";
 
 import Search from "./pages/Search";
 import Title from "./pages/Title";
@@ -39,14 +39,24 @@ function App() {
     }
   }
   return (
-    <ConfigProvider>
-      <Layout
-        style={{
-          height: "100%",
-        }}
-      >
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: "#31daad",
+          colorTextSecondary: "#1d92d1",
+        },
+        components: {
+          Layout: {
+            headerBg: "#13a8a8",
+            algorithm: true
+          },
+        },
+        algorithm: theme.defaultAlgorithm,
+      }}
+    >
+      <Layout style={{}}>
         <Layout.Header>
-          <h1>FB2Creator</h1>
+          <h1 style={{ textAlign: "center", margin: "0" }}>FB2Creator</h1>
         </Layout.Header>
         {renderPage()}
       </Layout>
