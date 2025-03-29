@@ -7,15 +7,23 @@ import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
 // interface SearchProps {
 // }
 
+const width = `min(${40}rem, 90vw)`;
+
 export function Search() {
   const [q, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
-  // const [isActive, setActive] = useState(false);
 
   useEffect(() => {
     if (!q) return;
 
-    fetchQueryTitles(q).then(setSearchedNovels);
+    setLoading(true);
+
+    fetchQueryTitles(q).then((titles) => {
+      setLoading(false);
+      setSearchedNovels(titles);
+    });
   }, [q]);
 
   return (
@@ -24,9 +32,10 @@ export function Search() {
         allowClear={true}
         onSearch={setQuery}
         placeholder="Искать вашу любимую новеллу"
+        loading={loading}
         style={{
-          width: "40rem",
-          marginInline: "calc(50% - 40rem / 2)", // Выравнивание по центру
+          width,
+          marginInline: `calc(50% - ${width} / 2)`, // Выравнивание по центру
         }}
       />
       <Row
@@ -37,7 +46,6 @@ export function Search() {
           overflowY: "scroll",
           height: "calc(100svh - 100px)",
           padding: "24px",
-
         }}
       >
         {searchedNovels.length > 0 &&
