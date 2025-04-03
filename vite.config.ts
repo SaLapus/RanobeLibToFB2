@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
-
+import wyw from "@wyw-in-js/vite";
+import { defineConfig } from "vite";
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -12,7 +12,7 @@ export default defineConfig({
     // Tauri expects a fixed port, fail if that port is not available
     strictPort: true,
     // if the host Tauri is expecting is set, use it
-    host: host || false,
+    host: host ?? false,
     port: 5173,
   },
   // Env variables starting with the item of `envPrefix` will be exposed in tauri's source code through `import.meta.env`.
@@ -23,7 +23,9 @@ export default defineConfig({
     // don't minify for debug builds
     minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
     // produce sourcemaps for debug builds
-    sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    // sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    sourcemap: true,
   },
-  plugins: [react()],
+
+  plugins: [react(), wyw()],
 });
