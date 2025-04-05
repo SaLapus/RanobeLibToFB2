@@ -1,6 +1,4 @@
-/* stylelint-disable selector-pseudo-class-no-unknown */
-/* stylelint-disable selector-pseudo-element-colon-notation */
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import "./App.css";
 
@@ -8,9 +6,9 @@ import Search from "./pages/Search";
 import Title from "./pages/Title";
 
 import { css } from "@linaria/core";
+import { styled } from "@linaria/react";
 import { useInfoStore } from "./hooks/state/state";
 
-export type Pages = "search" | "title";
 const globals = css`
   :global() {
     :root {
@@ -26,7 +24,7 @@ const globals = css`
       --f-color-error: #f5222d;
     }
 
-    /* html {
+    html {
       box-sizing: border-box;
     }
 
@@ -34,7 +32,8 @@ const globals = css`
     *::before,
     *::after {
       box-sizing: inherit;
-    } */
+      height: 100%;
+    }
 
     /* @font-face {
       font-family: "MaterialIcons";
@@ -43,53 +42,41 @@ const globals = css`
   }
 `;
 
+const AppHeader = styled.header`
+  &,
+  & > * {
+    text-align: center;
+    margin-block: 0;
+  }
+
+  height: min-content;
+`;
+
 /** TO DO
- * 1. NovelsListItem
- * - Rewrite to grid
- *
- * 2. TitleInfo
- * - Change color from basic
- *
  * 3. ChapterList
  * - Improve speed
  * - Find problem of re-renders
  *
- * 4. Search
- * - Strange lines when press Enter (media querys from ant?..)
+ * 4. Errors
+ * - Add modals when error occurs
+ * - Add loading spinner when fetching data
  */
 
 export default function App() {
-  const [page, setPage] = useState<Pages>("search");
-
   const slug = useInfoStore((state) => state.slug);
 
   useEffect(() => {
     console.log("effect fetch title");
 
     console.log(slug);
-
-    if (!slug) return;
-
-    setPage("title");
   }, [slug]);
 
   return (
     <div className={globals}>
-      <header>
-        <h1 style={{ textAlign: "center", margin: "0" }}>FB2Creator</h1>
-      </header>
-      <main>{renderPage(page)}</main>
+      <AppHeader>
+        <h1>FB2Creator</h1>
+      </AppHeader>
+      <main>{!slug ? <Search /> : <Title />}</main>
     </div>
   );
-}
-
-function renderPage(page: Pages) {
-  switch (page) {
-    case "title":
-      return <Title />;
-
-    case "search":
-    default:
-      return <Search />;
-  }
 }
