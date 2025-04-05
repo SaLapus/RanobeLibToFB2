@@ -1,5 +1,7 @@
 {
-  "extends": [
-    "@linaria/stylelint-config-standard-linaria"
-  ]
+  "extends": ["@linaria/stylelint-config-standard-linaria"],
+  "rules": {
+    "selector-pseudo-class-no-unknown": null,
+    "custom-property-empty-line-before": null
+  }
 }

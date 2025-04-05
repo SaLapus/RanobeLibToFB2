@@ -1,31 +1,51 @@
-import { Button } from "antd";
-import { useShallow } from "zustand/react/shallow";
+import { CSSProperties, styled } from "@linaria/react";
 
-import { downloadSettings } from "../../pages/Title/Title.module.css";
 
 import { fetchChapter } from "../../utils/api";
+import { sortChapters } from "../../utils/cmpChapters";
 import parseChapter from "../../utils/parseChapters";
 import printBook from "../../utils/printBook";
 
-import { useChapterStore, useInfoStore } from "../../hooks/state/state";
+import { useChapterStore } from "../../hooks/state/state";
 
-import { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
-import { TitleInfo } from "../../types/api/Title";
-import { sortChapters } from "../../utils/cmpChapters";
+import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+import type { TitleInfo } from "../../types/api/Title";
 
-export default function DownloadSettings() {
-  const [slug, titleInfo, chaptersInfo] = useInfoStore(
-    useShallow((state) => [state.slug, state.titleInfo, state.chaptersInfo])
-  );
+interface DowloadSettingsProps {
+  className?: string;
+  style?: CSSProperties;
+  slug: string;
+  titleInfo: TitleInfo;
+  chaptersInfo: ChapterInfo[];
+}
+
+const Button = styled.button`
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+`;
+
+export default function DownloadSettings({
+  className,
+  style,
+  slug,
+  titleInfo,
+}: DowloadSettingsProps) {
   const chapters = useChapterStore((state) => state.chapters);
 
-  if (!(slug && titleInfo && chaptersInfo)) return null;
+  if (!slug) return null;
 
   return (
-
     // ИСПРАВИТЬ
-    <div className={downloadSettings}>
-      <Button onClick={() => parseChapterList({ chapters, slug, titleInfo })}>Скачать</Button>
+    <div className={className} style={style}>
+      <Button
+        onClick={() => {
+          parseChapterList({ chapters, slug, titleInfo });
+        }}
+      >
+        Скачать
+      </Button>
     </div>
   );
 }
@@ -36,29 +56,42 @@ interface PropsToParseChapters {
   titleInfo: TitleInfo;
 }
 
-async function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
+// Refactor to Promise#allSettled
+function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
   Array.from(chapters)
-    .map(([vol, ch]): [number, Promise<Awaited<ReturnType<typeof parseChapter>>[]>] => {
-      return [
-        vol,
-        Promise.all(
-          ch.sort(sortChapters("onlyByChapters")).map(async (c) => {
-            const chapters = await fetchChapter(slug, undefined, c.volume, c.number);
-            return await parseChapter(chapters);
-          })
-        ),
-      ];
-    })
-    .forEach(async ([vol, promisedChapters]) => {
-      const chs = await promisedChapters;
+    .map(
+      ([vol, ch]): [
+        number,
+        Promise<Awaited<ReturnType<typeof parseChapter>>[]>
+      ] => {
+        return [
+          vol,
+          Promise.all(
+            ch.toSorted(sortChapters("onlyByChapters")).map(async (c) => {
+              const chapters = await fetchChapter(
+                slug,
+                undefined,
+                c.volume,
+                c.number
+              );
+              return parseChapter(chapters);
+            })
+          ),
+        ];
+      }
+    )
+    .forEach(([vol, promisedChapters]) => {
+      void (async () => {
+        const chs = await promisedChapters;
 
-      // eslint-disable-next-line no-debugger
-      debugger;
-      printBook(
-        titleInfo,
-        vol.toString(),
-        chs.map((c) => c.chapter),
-        chs.flatMap((c) => c.binary)
-      );
+        // eslint-disable-next-line no-debugger
+        debugger;
+        printBook(
+          titleInfo,
+          vol.toString(),
+          chs.map((c) => c.chapter),
+          chs.flatMap((c) => c.binary)
+        );
+      })();
     });
 }

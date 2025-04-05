@@ -1,83 +1,107 @@
+import { CSSProperties, styled } from "@linaria/react";
 import { useShallow } from "zustand/react/shallow";
 
-import { chapter } from "./ChapterList.module.css";
-
-import { Checkbox, Col, List, Row } from "antd";
-import { useChapterStore, useInfoStore } from "../../hooks/state/state";
+import { useMemo } from "react";
+import { useChapterStore } from "../../hooks/state/state";
 import { groupBy } from "../../utils/cmpChapters";
 
-export function ChapterList() {
-  const chaptersInfo = useInfoStore((state) => state.chaptersInfo);
-  const [, addChapters, toggleChapter, deleteChapters, hasChapter] = useChapterStore(
-    useShallow((state) => [
-      state.chapters,
-      state.addChapters,
-      state.toggleChapter,
-      state.deleteChapters,
-      state.hasChapter,
-    ])
+import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+
+interface ChapterListProps {
+  className?: string;
+  style?: CSSProperties;
+  chaptersInfo: ChapterInfo[];
+}
+
+const TitleTable = styled.table`
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-spacing: 0;
+`;
+
+const TableHead = styled.thead``;
+const TableBody = styled.tbody``;
+const ContentRow = styled.tr`
+  cursor: "pointer";
+  text-align: "left";
+`;
+const Cell = styled.td``;
+
+const cellStyle: React.CSSProperties = {
+  minHeight: "2em",
+  minWidth: "4em",
+};
+
+export function ChapterList({
+  className,
+  style,
+  chaptersInfo,
+}: ChapterListProps) {
+  const [, addChapters, toggleChapter, deleteChapters, hasChapter] =
+    useChapterStore(
+      useShallow((state) => [
+        state.chapters,
+        state.addChapters,
+        state.toggleChapter,
+        state.deleteChapters,
+        state.hasChapter,
+      ])
+    );
+
+  const groupedChapters = useMemo(
+    () => groupBy("volume", chaptersInfo),
+    [chaptersInfo]
   );
 
-  if (!chaptersInfo) return null;
-
-  const groupedChapters = groupBy("volume", chaptersInfo);
-
   return (
-    <>
-      <Row className="controls" justify={"space-evenly"}>
-        <Col span={1}>#</Col>
-        <Col span={2}>Том</Col>
-        <Col span={2}>Глава</Col>
-        <Col span={19}>Название</Col>
+    <TitleTable className={className} style={style}>
+      <TableHead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Том</th>
+          <th scope="col">Глава</th>
+          <th scope="col">Название</th>
+        </tr>
 
-        <Checkbox
-          onChange={(event) => {
-            if (event.target.checked) addChapters(groupedChapters);
-            else deleteChapters();
-          }}
-        >
-          Выбрать все
-        </Checkbox>
-      </Row>
+        <tr className="controls">
+          <td colSpan={4}>
+            <input
+              type="checkbox"
+              className={"controls"}
+              name=""
+              id=""
+              onChange={(event) => {
+                if (event.target.checked) addChapters(groupedChapters);
+                else deleteChapters();
+              }}
+            />
+            Выбрать все
+          </td>
+        </tr>
+      </TableHead>
 
-      <List
-        itemLayout="vertical"
-        style={{
-          overflowY: "scroll",
-          height: "100%",
-        }}
-      >
-        {groupedChapters.map(([vol, chs], ind) => (
-          <List.Item
-            key={vol}
-            style={{
-              backgroundColor: ind % 2 ? "#535353" : "",
-            }}
-          >
-            {chs.map((ch) => {
-              return (
-                <Row
-                  className={chapter}
-                  key={ch.id}
-                  align={"middle"}
-                  onClick={() => toggleChapter(vol, ch)}
-                  style={{
-                    cursor: "pointer",
-                    textAlign: "left",
-                  }}
-                >
-                  <Col span={1}>
-                    <Checkbox checked={hasChapter(ch.id)} />
-                  </Col>
-                  <Col span={2}>Том {ch.volume}</Col>
-                  <Col span={2}>Глава {ch.number}</Col>
-                  <Col span={19}>{ch.name ? ch.name : ""}</Col>
-                </Row>
-              );
-            })}
-          </List.Item>
-        ))}
-      </List>
-    </>
+      <TableBody>
+        {groupedChapters.map(([vol, chs]) =>
+          chs.map((ch) => {
+            // Perfomance?..
+            return (
+              <ContentRow
+                key={vol + "_" + ch.id}
+                onClick={() => toggleChapter(vol, ch)}
+              >
+                <Cell>
+                  {/* Move hasChapter calculation outside of render loop  */}
+                  <input type={"checkbox"} checked={hasChapter(ch.id)} />
+                </Cell>
+                <Cell style={cellStyle}>Том {ch.volume}</Cell>
+                <Cell style={cellStyle}>Глава {ch.number}</Cell>
+                <Cell>{ch.name ? ch.name : ""}</Cell>
+              </ContentRow>
+            );
+          })
+        )}
+      </TableBody>
+    </TitleTable>
   );
 }

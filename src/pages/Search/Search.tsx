@@ -1,60 +1,61 @@
-import { Col, Input, Layout, Row } from "antd";
 import { useEffect, useState } from "react";
 
-import { NovelsListItem } from "../../components/NovelsListItem";
+import { styled } from "@linaria/react";
+import { SearchedCard } from "../../components/SearchedCard";
 import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
 
 // interface SearchProps {
 // }
 
-const width = `min(${40}rem, 90vw)`;
+const width = 40;
+
+// const Layout = styled.div``; // delete if not needed
+
+const SearchInput = styled.input`
+  --input-width: min(${width}em, 90vw);
+
+  width: var(--input-width);
+  margin-inline: calc(50% - var(--input-width) / 2);
+`;
+const ResultsLayout = styled.div`
+  overflow-y: "scroll";
+  height: "calc(100svh - 100px)"; // refactor
+  padding: "24px";
+
+  display: flex;
+  flex-direction: column;
+`;
 
 export function Search() {
   const [q, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
 
   useEffect(() => {
     if (!q) return;
 
-    setLoading(true);
+    // setLoading(true);
 
-    fetchQueryTitles(q).then((titles) => {
-      setLoading(false);
+    void fetchQueryTitles(q).then((titles) => {
+      // setLoading(false);
       setSearchedNovels(titles);
     });
   }, [q]);
 
   return (
-    <Layout.Content style={{}}>
-      <Input.Search
-        allowClear={true}
-        onSearch={setQuery}
+    <>
+      <SearchInput
+        // onInput={() => setQuery}
         placeholder="Искать вашу любимую новеллу"
-        loading={loading}
-        style={{
-          width,
-          marginInline: `calc(50% - ${width} / 2)`, // Выравнивание по центру
-        }}
+        // loading={loading}
       />
-      <Row
-        align={"middle"}
-        justify={"center"}
-        gutter={[24, 12]}
-        style={{
-          overflowY: "scroll",
-          height: "calc(100svh - 100px)",
-          padding: "24px",
-        }}
-      >
+      <ResultsLayout>
         {searchedNovels.length > 0 &&
           searchedNovels.map((title) => (
-            <Col key={title.id} span={13}>
-              <NovelsListItem novel={title} />
-            </Col>
+            <SearchedCard key={title.id} novel={title} />
           ))}
-      </Row>
-    </Layout.Content>
+      </ResultsLayout>
+    </>
   );
 }

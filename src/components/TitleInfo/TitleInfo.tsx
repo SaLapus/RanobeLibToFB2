@@ -1,14 +1,28 @@
-import { Row, Col } from "antd";
+import { CSSProperties, styled } from "@linaria/react";
 import { useMemo } from "react";
-import { useShallow } from "zustand/react/shallow";
 
-import { useInfoStore } from "../../hooks/state/state";
+import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+import type { TitleInfo } from "../../types/api/Title";
 
-export default function TitleInfo() {
-  const [titleInfo, chaptersInfo] = useInfoStore(
-    useShallow((state) => [state.titleInfo, state.chaptersInfo])
-  );
+interface TitleInfoProps {
+  className?: string;
+  style?: CSSProperties;
+  titleInfo: TitleInfo;
+  chaptersInfo: ChapterInfo[];
+}
 
+const InfoTable = styled.table`
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+`;
+
+export default function TitleInfo({
+  className,
+  style,
+  titleInfo,
+  chaptersInfo,
+}: TitleInfoProps) {
   const data = useMemo(() => {
     if (!titleInfo || !chaptersInfo) return [];
 
@@ -19,20 +33,18 @@ export default function TitleInfo() {
       ["Глав", chaptersInfo.length],
       ["Статус", titleInfo.status.label],
       ["Перевод", "&&&"],
-      ["Автор", titleInfo.authors.shift()?.name || ""],
+      ["Автор", titleInfo.authors.shift()?.name ?? ""],
     ];
   }, [titleInfo, chaptersInfo]);
 
-  if (!data.length) return;
-
   return (
-    <>
+    <InfoTable className={className} style={style}>
       {data.map((row) => (
-        <Row key={row[0]}>
-          <Col>{row[0]}</Col>
-          <Col>{row[1]}</Col>
-        </Row>
+        <tr key={row[0]}>
+          <th>{row[0]}</th>
+          <td>{row[1]}</td>
+        </tr>
       ))}
-    </>
+    </InfoTable>
   );
 }
