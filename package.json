@@ -11,7 +11,8 @@
     "release": "standard-version",
     "lint": "eslint .",
     "fix": "eslint --fix .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepare": "husky"
   },
   "dependencies": {
     "@tauri-apps/plugin-http": "^2.3.0",
@@ -23,6 +24,8 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@eslint/compat": "^1.2.8",
     "@eslint/js": "^9.23.0",
     "@linaria/core": "^6.3.0",
@@ -39,6 +42,7 @@
     "eslint": "^9.23.0",
     "eslint-plugin-react": "^7.37.4",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "standard-version": "^9.5.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.29.0",
