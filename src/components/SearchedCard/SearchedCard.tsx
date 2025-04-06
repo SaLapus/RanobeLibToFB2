@@ -1,6 +1,7 @@
 import { styled } from "@linaria/react";
 
 import { useInfoStore } from "../../hooks/state/state";
+
 import { FetchedQueryTitle } from "../../utils/api";
 
 // Img height 100%
@@ -21,7 +22,7 @@ const Card = styled.article`
   column-gap: 10px;
 
   border-radius: 8px;
-  box-shadow: 2px 4px 8px rgb(0 0 0 / 10%);
+  box-shadow: 0 3px 8px rgba(0 0 0 / 24%);
 
   overflow: hidden;
 
@@ -52,12 +53,12 @@ interface SearchedCardProps {
   novel: FetchedQueryTitle;
 }
 
-
 export default function SearchedCard({ novel }: SearchedCardProps) {
   const setSlug = useInfoStore((state) => state.setSlug);
 
   return (
     <Card
+      tabIndex={0}
       onClick={() => {
         void setSlug(novel.slug_url);
       }}

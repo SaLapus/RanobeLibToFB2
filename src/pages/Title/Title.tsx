@@ -7,28 +7,16 @@ import { DownloadSettings } from "../../components/DownloadSettings";
 import { TitleInfo } from "../../components/TitleInfo";
 
 import { useInfoStore } from "../../hooks/state/state";
-// import type { Pages } from "../../App";
 
-// interface TitlePageProps {
-//   // to: (page: Pages) => void;
-// }
-
-const Layout = styled.div`
+const Layout = styled.main`
   display: grid;
-  height: 100vh;
+  height: 100%;
 
   grid-template-columns: 1fr 2fr;
   grid-template-rows: repeat(3, 1fr);
-  grid-gap: 10px; /* Optional: Add some spacing between the grid items */
+  grid-gap: 10px;
 
-  overflow: scroll;
-
-  /* height: 80%;
-  width: 100%; */
-
-  & > * {
-    min-height: 0;
-  }
+  overflow: hidden;
 `;
 
 const infoStyles = css`
@@ -44,7 +32,7 @@ const chapterStyles = css`
   grid-row: 1 / 4;
 `;
 
-export function Title(/* props: TitlePageProps */) {
+export function Title() {
   const [slug, titleInfo, chaptersInfo] = useInfoStore(
     useShallow((state) => [state.slug, state.titleInfo, state.chaptersInfo])
   );

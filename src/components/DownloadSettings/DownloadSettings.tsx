@@ -1,6 +1,5 @@
 import { CSSProperties, styled } from "@linaria/react";
 
-
 import { fetchChapter } from "../../utils/api";
 import { sortChapters } from "../../utils/cmpChapters";
 import parseChapter from "../../utils/parseChapters";
@@ -40,6 +39,7 @@ export default function DownloadSettings({
     // ИСПРАВИТЬ
     <div className={className} style={style}>
       <Button
+        tabIndex={-1}
         onClick={() => {
           parseChapterList({ chapters, slug, titleInfo });
         }}

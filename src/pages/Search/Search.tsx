@@ -2,6 +2,7 @@ import { styled } from "@linaria/react";
 import { useEffect, useRef, useState } from "react";
 
 import { SearchedCard } from "../../components/SearchedCard";
+
 import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
 
 // interface SearchProps {
@@ -95,7 +96,7 @@ export function Search() {
         <Spinner $loading={loading}></Spinner>
       </SearchContainer>
 
-      <ResultsContainer>
+      <ResultsContainer tabIndex={-1}>
         {searchedNovels.length > 0 &&
           searchedNovels.map((title) => (
             <SearchedCard key={title.id} novel={title} />

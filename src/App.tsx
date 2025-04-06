@@ -1,13 +1,11 @@
+import { css } from "@linaria/core";
+import { styled } from "@linaria/react";
 import { useEffect } from "react";
 
-import "./App.css";
+import { useInfoStore } from "./hooks/state/state";
 
 import Search from "./pages/Search";
 import Title from "./pages/Title";
-
-import { css } from "@linaria/core";
-import { styled } from "@linaria/react";
-import { useInfoStore } from "./hooks/state/state";
 
 const globals = css`
   :global() {
@@ -26,6 +24,12 @@ const globals = css`
 
     html {
       box-sizing: border-box;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+    }
+
+    body {
+      margin: 0;
     }
 
     *,
@@ -40,6 +44,15 @@ const globals = css`
       src: url(../assets/fonts/MaterialIcons.ttf) format("truetype");
     } */
   }
+`;
+
+const AppLayout = styled.div`
+  display: grid;
+
+  grid-template-rows: 60px 1fr;
+  grid-template-columns: 1fr;
+
+  height: 100vh;
 `;
 
 const AppHeader = styled.header`
@@ -67,16 +80,15 @@ export default function App() {
 
   useEffect(() => {
     console.log("effect fetch title");
-
     console.log(slug);
   }, [slug]);
 
   return (
-    <div className={globals}>
+    <AppLayout className={globals}>
       <AppHeader>
         <h1>FB2Creator</h1>
       </AppHeader>
-      <main>{!slug ? <Search /> : <Title />}</main>
-    </div>
+      {!slug ? <Search /> : <Title />}
+    </AppLayout>
   );
 }
