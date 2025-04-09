@@ -43,8 +43,8 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
 
       const elementsPromises = texts.map(async (text) => {
         let el: FB2.Paragraph | FB2.Image | FB2.EmptyLine;
-        if (text.match(/<img [\s\S]*?\/>/)) {
-          const [, src] = text.match(/<img [\s\S]*?src="([\s\S]*?)" \/>/)!;
+        if (/<img [\s\S]*?\/>/.exec(text)) {
+          const [, src] = /<img [\s\S]*?src="([\s\S]*?)" \/>/.exec(text)!;
 
           console.log(1);
 

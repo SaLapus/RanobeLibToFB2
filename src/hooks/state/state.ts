@@ -1,18 +1,18 @@
+import type { } from "@redux-devtools/extension"; // required for devtools typing\
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type {} from "@redux-devtools/extension"; // required for devtools typing\
 
 import { fetchChaptersInfo, fetchTitleInfo } from "../../utils/api";
 
-import { TitleInfo } from "../../types/api/Title";
-import { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+import type { TitleInfo } from "../../types/api/Title";
 
 interface InfoState {
-  slug?: string;
-  setSlug: (slug: string) => void;
+  slug: string | undefined;
+  setSlug: (slug: string) => Promise<void>;
+
   titleInfo?: TitleInfo;
   chaptersInfo?: ChapterInfo[];
-  fetchInfo(slug: string): Promise<void>;
 }
 
 // Set Id для быстрого поиска
@@ -28,14 +28,23 @@ interface ChoosedChaptersState {
 const useInfoStore = create<InfoState>()(
   // devtools()
   (set) => ({
-    setSlug: (slug) => {
-      set({ slug });
-    },
-    fetchInfo: async (slug) => {
-      const title = await fetchTitleInfo(slug);
-      const chapters = await fetchChaptersInfo(slug);
+    slug: undefined,
+    setSlug: async (slug) => {
+      console.log("Setting slug");
 
-      set({ titleInfo: title, chaptersInfo: chapters });
+      try {
+        const [title, chapters] = await Promise.all([
+          fetchTitleInfo(slug),
+          fetchChaptersInfo(slug),
+        ]);
+
+        console.log("Title fetched");
+
+        set({ titleInfo: title, chaptersInfo: chapters, slug });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        set({ slug });
+      }
     },
   })
 );
@@ -47,7 +56,9 @@ const useChapterStore = create<ChoosedChaptersState>()(
     addChapters: (chapters: [number, chapters: ChapterInfo[]][]) => {
       set({
         chapters: new Map(chapters),
-        ids: new Set(chapters.flatMap(([, val]) => val.map((chapter) => chapter.id))),
+        ids: new Set(
+          chapters.flatMap(([, val]) => val.map((chapter) => chapter.id))
+        ),
       });
     },
     toggleChapter: (vol, chapter) => {
@@ -64,7 +75,11 @@ const useChapterStore = create<ChoosedChaptersState>()(
 
       set({
         chapters: newState,
-        ids: new Set([...newState.values()].flatMap((val) => val.map((chapter) => chapter.id))),
+        ids: new Set(
+          [...newState.values()].flatMap((val) =>
+            val.map((chapter) => chapter.id)
+          )
+        ),
       });
     },
     deleteChapters: (id) => {
@@ -76,7 +91,11 @@ const useChapterStore = create<ChoosedChaptersState>()(
 
         set({
           chapters: newState,
-          ids: new Set([...newState.values()].flatMap((val) => val.map((chapter) => chapter.id))),
+          ids: new Set(
+            [...newState.values()].flatMap((val) =>
+              val.map((chapter) => chapter.id)
+            )
+          ),
         });
       }
     },
@@ -84,4 +103,5 @@ const useChapterStore = create<ChoosedChaptersState>()(
   }))
 );
 
-export { useInfoStore, useChapterStore };
+export { useChapterStore, useInfoStore };
+

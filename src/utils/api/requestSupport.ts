@@ -2,10 +2,10 @@ import Awaiter from "./awaiter";
 
 const awaiter = new Awaiter();
 
-export default function requestSupport<Input extends unknown[], Output>(
-  reqFunc: (...value: Input) => Promise<Output>
-): (...value: Input) => Promise<Output> {
-  return async (...value: Input) => {
+export default function requestSupport<Input, Output>(
+  reqFunc: (...value: Input[]) => Promise<Output>
+): (...value: Input[]) => Promise<Output> {
+  return async (...value: Input[]) => {
     let returnValue: Output;
     let attempts = 0;
 
@@ -19,9 +19,10 @@ export default function requestSupport<Input extends unknown[], Output>(
       } catch (e) {
         attempts++;
         console.error(e);
-        if (attempts >= 10) throw `Too many attempts at ${reqFunc.name}\nArgs: ${value}`;
+        if (attempts === 10)
+          throw `Too many (10) attempts at ${reqFunc.name}\nArgs: ${value}`;
       }
-    // eslint-disable-next-line no-constant-condition
+      // eslint-disable-next-line no-constant-condition
     } while (true);
   };
 }

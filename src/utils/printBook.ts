@@ -1,10 +1,10 @@
 /* eslint-disable no-debugger */
 
-import { create } from "xmlbuilder2";
 import sanitize from "sanitize-filename";
+import { create } from "xmlbuilder2";
 
-import * as FB2 from "../types/fb2";
 import { TitleInfo } from "../types/api/Title";
+import * as FB2 from "../types/fb2";
 
 export default function printBook(
   titleInfo: TitleInfo,

@@ -59,7 +59,7 @@ export type Content = Extract<ChapterObjects, { content: unknown }>;
 
 export interface Doc {
   type: "doc";
-  content: Array<Paragraph | Image>;
+  content: (Paragraph | Image)[];
 }
 
 export interface Paragraph {
@@ -92,7 +92,7 @@ export interface Mark {
 }
 export interface ImageContent {
   description: string;
-  images: Array<{
+  images: {
     image: string;
-  }>;
+  }[];
 }

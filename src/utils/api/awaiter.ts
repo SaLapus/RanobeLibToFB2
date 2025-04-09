@@ -3,9 +3,9 @@ interface AwaiterOptions {
 }
 
 export default class Awaiter {
-  private cap: number = 50;
+  private cap = 50;
   private _current = 0;
-  private queue: Array<() => void> = [];
+  private queue: (() => void)[] = [];
 
   private set current(cur: number) {
     if (cur < this._current && this.queue.length > 0) this.queue.shift()?.();

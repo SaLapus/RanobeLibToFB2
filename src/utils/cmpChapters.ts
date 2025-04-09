@@ -1,8 +1,8 @@
-import { Data as CI } from "../types/api/ChaptersInfo";
+import type { Data as CI } from "../types/api/ChaptersInfo";
 
 export function groupBy(by: "volume", array: CI[]): [number, CI[]][];
 export function groupBy(by: "number", array: CI[], num: number): [number, CI[]][];
-export function groupBy(by: "volume" | "number", array: CI[], num: number = 50): [number, CI[]][] {
+export function groupBy(by: "volume" | "number", array: CI[], num = 50): [number, CI[]][] {
   switch (by) {
     case "volume": {
       const volumes = new Set<number>();
@@ -10,11 +10,11 @@ export function groupBy(by: "volume" | "number", array: CI[], num: number = 50):
 
       return Array.from(volumes).map((vol) => [
         vol,
-        array.filter((ch) => parseInt(ch.volume, 10) === vol).sort(sortChapters("onlyByChapters")),
+        array.filter((ch) => parseInt(ch.volume, 10) === vol).toSorted(sortChapters("onlyByChapters")),
       ]);
     }
     case "number": {
-      const sortedChapters = array.sort(sortChapters());
+      const sortedChapters = array.toSorted(sortChapters());
       const gropedChapters: [number, CI[]][] = [];
       let len: number;
 
@@ -37,8 +37,8 @@ export function sortChapters(...options: (SortOption | undefined)[]) {
       if (volDiff !== 0) return volDiff;
     }
 
-    const [, aNum, aSec] = a.number.match(/(\d+)\.?(\d*)/)!;
-    const [, bNum, bSec] = b.number.match(/(\d+)\.?(\d*)/)!;
+    const [, aNum, aSec] = /(\d+)\.?(\d*)/.exec(a.number)!;
+    const [, bNum, bSec] = /(\d+)\.?(\d*)/.exec(b.number)!;
     return parseInt(aNum, 10) - parseInt(bNum, 10) || parseInt(aSec, 10) - parseInt(bSec, 10);
   };
 }

@@ -1,6 +1,6 @@
-import { Root as QueryResponce } from "../../types/api/QueryResponce";
-import { Root as ChapterInfo } from "../../types/api/ChaptersInfo";
 import { Root as Chapter } from "../../types/api/Chapter";
+import { Root as ChapterInfo } from "../../types/api/ChaptersInfo";
+import { Root as QueryResponce } from "../../types/api/QueryResponce";
 import { TitleInfo } from "../../types/api/Title";
 
 import rS from "./requestSupport";
@@ -28,7 +28,7 @@ export const fetchQueryTitles = rS(async function fetchQueryTitles(
 
   if (!res.ok) throw `Not OK Responce: fetchQueryTitles\nCode: ${res.status}`;
 
-  const { data }: QueryResponce = await res.json();
+  const { data } = (await res.json()) as QueryResponce;
 
   if (!data.length) return [];
 
@@ -47,31 +47,37 @@ export const fetchQueryTitles = rS(async function fetchQueryTitles(
   }));
 });
 
-export const fetchTitleInfo = rS(async function fetchTitleInfo(slug_url: string) {
+export const fetchTitleInfo = rS(async function fetchTitleInfo(
+  slug_url: string
+) {
   const res = await fetch(
     `https://api.mangalib.me/api/manga/${slug_url}?fields[]=background&fields[]=summary&fields[]=authors&fields[]=artists`
   );
 
   if (!res.ok) throw `Not OK Responce: fetchTitleInfo\nCode: ${res.status}`;
 
-  const { data }: { data: TitleInfo } = await res.json();
+  const { data } = (await res.json()) as { data: TitleInfo };
 
   return data;
 });
 
-export const fetchChaptersInfo = rS(async function fetchChaptersInfo(slug_url: string) {
-  const res = await fetch(`https://api.mangalib.me/api/manga/${slug_url}/chapters`);
+export const fetchChaptersInfo = rS(async function fetchChaptersInfo(
+  slug_url: string
+) {
+  const res = await fetch(
+    `https://api.mangalib.me/api/manga/${slug_url}/chapters`
+  );
 
   if (!res.ok) throw `Not OK Responce: fetchChaptersInfo\nCode: ${res.status}`;
 
-  const { data }: ChapterInfo = await res.json();
+  const { data } = (await res.json()) as ChapterInfo;
 
   return data;
 });
 
 export const fetchChapter = rS(async function fetchChapter(
   slug_url: string,
-  branch_id: number = 9008,
+  branch_id = 9008,
   volume: string,
   number: string
 ) {
@@ -79,10 +85,8 @@ export const fetchChapter = rS(async function fetchChapter(
     `https://api.mangalib.me/api/manga/${slug_url}/chapter?branch_id=${branch_id}&volume=${volume}&number=${number}`
   );
 
-  
-
   if (!res.ok) throw `Not OK Responce: fetchChapter\nCode: ${res.status}`;
 
-  const { data }: Chapter = await res.json();
+  const { data } = (await res.json()) as Chapter;
   return data;
 });
