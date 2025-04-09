@@ -33,7 +33,7 @@
     "@linaria/stylelint-config-standard-linaria": "^6.3.0",
     "@redux-devtools/extension": "^3.3.0",
     "@tauri-apps/cli": "^2.2.7",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.14.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@typescript-eslint/parser": "^8.28.0",

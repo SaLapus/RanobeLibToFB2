@@ -25,5 +25,3 @@ books
 *.sw?
 
 .yarn
-yarn.lock
-.yarnrc.yml
