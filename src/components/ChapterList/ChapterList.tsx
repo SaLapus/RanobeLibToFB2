@@ -123,7 +123,7 @@ export function ChapterList({
               // Perfomance?..
               return (
                 <ContentRow
-                  key={vol + "_" + ch.id}
+                  key={ch.id}
                   tabIndex={0}
                   onClick={() => toggleChapter(vol, ch)}
                   onKeyDown={(event) => {
