@@ -66,10 +66,14 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
       });
       const elements = await Promise.allSettled(elementsPromises);
 
-      elements.filter((el) => el.status === "rejected").forEach((el) => console.error(el.reason));
+      elements
+        .filter((el) => el.status === "rejected")
+        .forEach((el) => console.error(el.reason));
 
       fb2Chapter.section["#"].push(
-        ...elements.filter((el) => el.status === "fulfilled").map((el) => el.value)
+        ...elements
+          .filter((el) => el.status === "fulfilled")
+          .map((el) => el.value)
       );
       break;
     }
@@ -79,24 +83,28 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
       ): Promise<ElemOrArr<FB2.MarkUpElements> | string> {
         switch (el.type) {
           case "doc": {
-            return (await Promise.all(el.content.flatMap((par) => parseElement(par)))) as (
-              | FB2.Paragraph
-              | FB2.Image
-            )[];
+            return (await Promise.all(
+              el.content.flatMap((par) => parseElement(par))
+            )) as (FB2.Paragraph | FB2.Image)[];
           }
           case "paragraph": {
             if (!el.content) return { "empty-line": {} };
 
             const parContent: (FB2.Paragraph | FB2.EmptyLine)[] = [];
             let parContentTemp: (string | FB2.Style)[] = [];
-            const createPar: (elems: (string | FB2.Style)[]) => FB2.Paragraph = (elems) => ({
+            const createPar: (
+              elems: (string | FB2.Style)[]
+            ) => FB2.Paragraph = (elems) => ({
               p: {
                 "#": elems,
               },
             });
 
             for (const paragraph of el.content) {
-              const pEl = (await parseElement(paragraph)) as string | FB2.Style | FB2.EmptyLine;
+              const pEl = (await parseElement(paragraph)) as
+                | string
+                | FB2.Style
+                | FB2.EmptyLine;
               if (Object.keys(pEl).includes("empty-line")) {
                 if (parContentTemp.length > 0) {
                   parContent.push(createPar(parContentTemp));
@@ -118,7 +126,9 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
           case "image": {
             return await Promise.all(
               el.attrs.images.map(async ({ image: image_src }) => {
-                const path = chapterInfo.attachments.find(({ name }) => name === image_src)?.url;
+                const path = chapterInfo.attachments.find(
+                  ({ name }) => name === image_src
+                )?.url;
                 const src = "https://ranobelib.me" + path;
 
                 if (!path) debugger;
@@ -163,18 +173,21 @@ export default async function parseChapter(chapterInfo: Chapter.Data) {
           }
           default:
             debugger;
-            throw "Unknown element";
+            throw new Error("Unknown element");
         }
       }
 
       fb2Chapter.section["#"].push(
-        ...((await parseElement(chapterContent)) as (FB2.Paragraph | FB2.Image)[])
+        ...((await parseElement(chapterContent)) as (
+          | FB2.Paragraph
+          | FB2.Image
+        )[])
       );
       break;
     }
     default:
       debugger;
-      throw "Unknown chapter content type";
+      throw new Error("Unknown chapter content type");
   }
 
   return {
@@ -187,7 +200,11 @@ async function fetchImageAsFB2Binary(src: string) {
   const base64Image = await fetch(src)
     .then((res) => res.arrayBuffer())
     .then((buffer) =>
-      btoa([...new Uint8Array(buffer)].map((char) => String.fromCharCode(char)).join(""))
+      btoa(
+        [...new Uint8Array(buffer)]
+          .map((char) => String.fromCharCode(char))
+          .join("")
+      )
     )
     .catch((e) => console.error(e));
 

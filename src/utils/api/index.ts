@@ -26,7 +26,8 @@ export const fetchQueryTitles = rS(async function fetchQueryTitles(
     `https://api.mangalib.me/api/manga?fields[]=rate_avg&fields[]=rate&fields[]=releaseDate&q=${titleQuery}&site_id[]=3`
   );
 
-  if (!res.ok) throw `Not OK Responce: fetchQueryTitles\nCode: ${res.status}`;
+  if (!res.ok)
+    throw new Error(`Not OK Responce: fetchQueryTitles\nCode: ${res.status}`);
 
   const { data } = (await res.json()) as QueryResponce;
 
@@ -54,7 +55,8 @@ export const fetchTitleInfo = rS(async function fetchTitleInfo(
     `https://api.mangalib.me/api/manga/${slug_url}?fields[]=background&fields[]=summary&fields[]=authors&fields[]=artists`
   );
 
-  if (!res.ok) throw `Not OK Responce: fetchTitleInfo\nCode: ${res.status}`;
+  if (!res.ok)
+    throw new Error(`Not OK Responce: fetchTitleInfo\nCode: ${res.status}`);
 
   const { data } = (await res.json()) as { data: TitleInfo };
 
@@ -68,7 +70,8 @@ export const fetchChaptersInfo = rS(async function fetchChaptersInfo(
     `https://api.mangalib.me/api/manga/${slug_url}/chapters`
   );
 
-  if (!res.ok) throw `Not OK Responce: fetchChaptersInfo\nCode: ${res.status}`;
+  if (!res.ok)
+    throw new Error(`Not OK Responce: fetchChaptersInfo\nCode: ${res.status}`);
 
   const { data } = (await res.json()) as ChapterInfo;
 
@@ -77,7 +80,7 @@ export const fetchChaptersInfo = rS(async function fetchChaptersInfo(
 
 export const fetchChapter = rS(async function fetchChapter(
   slug_url: string,
-  branch_id = 9008,
+  branch_id: number | undefined = 9008,
   volume: string,
   number: string
 ) {
@@ -85,7 +88,8 @@ export const fetchChapter = rS(async function fetchChapter(
     `https://api.mangalib.me/api/manga/${slug_url}/chapter?branch_id=${branch_id}&volume=${volume}&number=${number}`
   );
 
-  if (!res.ok) throw `Not OK Responce: fetchChapter\nCode: ${res.status}`;
+  if (!res.ok)
+    throw new Error(`Not OK Responce: fetchChapter\nCode: ${res.status}`);
 
   const { data } = (await res.json()) as Chapter;
   return data;

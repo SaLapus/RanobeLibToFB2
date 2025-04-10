@@ -1,6 +1,6 @@
 import mime from "mime-standard";
 
-const mimesByExt = new Map();
+const mimesByExt = new Map<string, keyof typeof mime>();
 
 const mimes = Object.keys(mime) as [keyof typeof mime];
 
@@ -11,7 +11,7 @@ mimes.forEach((key) => {
 
 export default {
   lookup: (src: string) => {
-    const ext = URL.parse(src)?.pathname.match(/\.(\w+)$/)![1];
+    const ext = URL.parse(src)!.pathname.match(/\.(\w+)$/)![1];
     return mimesByExt.get(ext);
   },
 };

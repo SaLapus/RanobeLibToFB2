@@ -31,6 +31,6 @@ export type Style = {
 
 export interface Binary {
   "@id": string;
-  "@content-type": string | false;
+  "@content-type": string | undefined;
   "#": string;
 }
