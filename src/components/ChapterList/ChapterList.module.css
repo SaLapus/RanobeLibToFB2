@@ -1,7 +1,0 @@
-.volumeList>*:nth-child(odd) {
-  background-color: #535353;
-}
-
-.chapter:hover {
-  background-color: #575757;
-}
