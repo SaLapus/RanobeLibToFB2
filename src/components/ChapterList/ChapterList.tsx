@@ -2,16 +2,8 @@ import { CSSProperties, styled } from "@linaria/react";
 import { useShallow } from "zustand/react/shallow";
 
 import { useMemo } from "react";
-import { useChapterStore } from "../../hooks/state/state";
-import { groupBy } from "../../utils/cmpChapters";
-
-import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
-
-interface ChapterListProps {
-  className?: string;
-  style?: CSSProperties;
-  chaptersInfo: ChapterInfo[];
-}
+import { Chapter, useInfoStore } from "../../hooks/state/state";
+import { sortChapters } from "../../utils/cmpChapters";
 
 const OverflowContainer = styled.div`
   overflow: scroll;
@@ -68,25 +60,24 @@ const Cell = styled.td`
   min-width: 4em;
 `;
 
-export function ChapterList({
-  className,
-  style,
-  chaptersInfo,
-}: ChapterListProps) {
-  const [, addChapters, toggleChapter, deleteChapters, hasChapter] =
-    useChapterStore(
-      useShallow((state) => [
-        state.chapters,
-        state.addChapters,
-        state.toggleChapter,
-        state.deleteChapters,
-        state.hasChapter,
-      ])
-    );
+interface ChapterListProps {
+  className?: string;
+  style?: CSSProperties;
+  chapters: Record<number, Chapter>;
+}
+
+export function ChapterList({ className, style, chapters }: ChapterListProps) {
+  const [toggleChapter, allChapters, deleteChapters] = useInfoStore(
+    useShallow((state) => [
+      state.toggleChapter,
+      state.allChapters,
+      state.deleteChapters,
+    ])
+  );
 
   const groupedChapters = useMemo(
-    () => groupBy("volume", chaptersInfo),
-    [chaptersInfo]
+    () => Object.values(chapters).sort(sortChapters()),
+    [chapters]
   );
 
   return (
@@ -108,7 +99,7 @@ export function ChapterList({
                 name=""
                 id=""
                 onChange={(event) => {
-                  if (event.target.checked) addChapters(groupedChapters);
+                  if (event.target.checked) allChapters();
                   else deleteChapters();
                 }}
               />
@@ -118,40 +109,37 @@ export function ChapterList({
         </TableHead>
 
         <TableBody>
-          {groupedChapters.map(([vol, chs]) =>
-            chs.map((ch) => {
-              // Perfomance?..
-              return (
+          {groupedChapters.map((chapter, i) =>
+            useMemo(
+              () => (
                 <ContentRow
-                  key={ch.id}
+                  key={chapter.id}
                   tabIndex={0}
-                  onClick={() => toggleChapter(vol, ch)}
+                  onClick={() => toggleChapter(chapter.id)}
                   onKeyDown={(event) => {
                     if (event.key === " " || event.key === "Enter") {
                       event.preventDefault();
-                      toggleChapter(vol, ch);
-
-                      // if (event.) addChapters(groupedChapters);
+                      toggleChapter(chapter.id);
                     }
                   }}
                 >
                   <Cell>
-                    {/* Move hasChapter calculation outside of render loop  */}
                     <input
                       type={"checkbox"}
                       tabIndex={-1}
-                      checked={hasChapter(ch.id)}
+                      checked={chapter.checked}
                       onChange={() => {
                         return;
                       }}
                     />
                   </Cell>
-                  <Cell>Том {ch.volume}</Cell>
-                  <Cell>Глава {ch.number}</Cell>
-                  <Cell>{ch.name ? ch.name : ""}</Cell>
+                  <Cell>Том {chapter.volume}</Cell>
+                  <Cell>Глава {chapter.number}</Cell>
+                  <Cell>{chapter.name ? chapter.name : ""}</Cell>
                 </ContentRow>
-              );
-            })
+              ),
+              [groupedChapters[i].checked]
+            )
           )}
         </TableBody>
       </TitleTable>
