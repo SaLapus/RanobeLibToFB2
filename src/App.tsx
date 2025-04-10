@@ -20,12 +20,20 @@ const globals = css`
       --f-color-success: #52c41a;
       --f-color-warning: #faad14;
       --f-color-error: #f5222d;
+
+      --font-heading: #000000e0;
+      --font-primary: #000000e0;
+      --font-secondary: #000000a6;
+
+      --border-color: #d9d9d9;
+      --layout-color: #f5f5f5;
     }
 
     html {
       box-sizing: border-box;
       overflow: hidden;
       font-family: system-ui, sans-serif;
+      color: var(--font-primary);
     }
 
     body {
@@ -86,7 +94,7 @@ export default function App() {
   return (
     <AppLayout className={globals}>
       <AppHeader>
-        <h1>FB2Creator</h1>
+        <h1 style={{ color: "var(--font-heading)" }}>FB2Creator</h1>
       </AppHeader>
       {!slug ? <Search /> : <Title />}
     </AppLayout>
