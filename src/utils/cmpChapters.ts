@@ -1,44 +1,56 @@
-import type { Data as CI } from "../types/api/ChaptersInfo";
+import { Chapter } from "../hooks/state/state";
 
-export function groupBy(by: "volume", array: CI[]): [number, CI[]][];
-export function groupBy(by: "number", array: CI[], num: number): [number, CI[]][];
-export function groupBy(by: "volume" | "number", array: CI[], num = 50): [number, CI[]][] {
+export function groupBy(
+  by: "volume",
+  dict: Record<number, Chapter>
+): Record<string, Chapter[]>;
+export function groupBy(
+  by: "number",
+  dict: Record<number, Chapter>,
+  num: number
+): Record<string, Chapter[]>;
+export function groupBy(
+  by: "volume" | "number",
+  dict: Record<number, Chapter>,
+  num = 50
+): Record<string, Chapter[]> {
   switch (by) {
     case "volume": {
-      const volumes = new Set<number>();
-      array.forEach((ch) => volumes.add(parseInt(ch.volume, 10)));
+      const volumes: Record<string, Chapter[]> = {};
+      Object.values(dict).forEach((chapter) => {
+        if (!volumes[chapter.volume]) volumes[chapter.volume] = [];
+        volumes[chapter.volume].push(chapter);
+      });
 
-      return Array.from(volumes).map((vol) => [
-        vol,
-        array.filter((ch) => parseInt(ch.volume, 10) === vol).toSorted(sortChapters("onlyByChapters")),
-      ]);
+      Object.values(volumes).forEach((volume) => volume.sort(sortChapters()));
+
+      return volumes;
     }
     case "number": {
-      const sortedChapters = array.toSorted(sortChapters());
-      const gropedChapters: [number, CI[]][] = [];
-      let len: number;
+      const volumes: Record<string, Chapter[]> = {};
 
-      for (let i = 0; i * num < sortedChapters.length; i++) {
-        len = sortedChapters.length < i * num ? sortedChapters.length : i * num;
-        gropedChapters.push([i + 1, sortedChapters.slice(i * num, len)]);
-      }
+      Object.values(dict).forEach((chapter, i) => {
+        if (!volumes[i / num]) volumes[i / num] = [];
+        volumes[i / num].push(chapter);
+      });
 
-      return gropedChapters;
+      Object.values(volumes).forEach((volume) => volume.sort(sortChapters()));
+
+      return volumes;
     }
   }
 }
 
-type SortOption = "onlyByChapters";
+export function sortChapters() {
+  return (a: Chapter, b: Chapter) => {
+    const volDiff = a.volumeID - b.volumeID;
+    if (volDiff !== 0) return volDiff;
 
-export function sortChapters(...options: (SortOption | undefined)[]) {
-  return (a: CI, b: CI) => {
-    if (!options.includes("onlyByChapters")) {
-      const volDiff = parseInt(a.volume, 10) - parseInt(b.volume, 10);
-      if (volDiff !== 0) return volDiff;
-    }
-
-    const [, aNum, aSec] = /(\d+)\.?(\d*)/.exec(a.number)!;
-    const [, bNum, bSec] = /(\d+)\.?(\d*)/.exec(b.number)!;
-    return parseInt(aNum, 10) - parseInt(bNum, 10) || parseInt(aSec, 10) - parseInt(bSec, 10);
+    return (
+      a.chapterFirstID - b.chapterFirstID ||
+      (a.chapterSecondID && b.chapterSecondID
+        ? a.chapterSecondID - b.chapterSecondID
+        : 0)
+    );
   };
 }
