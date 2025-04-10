@@ -1,13 +1,12 @@
 import { CSSProperties, styled } from "@linaria/react";
 
 import { fetchChapter } from "../../utils/api";
-import { sortChapters } from "../../utils/cmpChapters";
+import { groupBy } from "../../utils/cmpChapters";
 import parseChapter from "../../utils/parseChapters";
 import printBook from "../../utils/printBook";
 
-import { useChapterStore } from "../../hooks/state/state";
+import { Chapter, useInfoStore } from "../../hooks/state/state";
 
-import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
 import type { TitleInfo } from "../../types/api/Title";
 
 interface DowloadSettingsProps {
@@ -15,7 +14,7 @@ interface DowloadSettingsProps {
   style?: CSSProperties;
   slug: string;
   titleInfo: TitleInfo;
-  chaptersInfo: ChapterInfo[];
+  chapters: Record<number, Chapter>;
 }
 
 const Button = styled.button`
@@ -31,7 +30,7 @@ export default function DownloadSettings({
   slug,
   titleInfo,
 }: DowloadSettingsProps) {
-  const chapters = useChapterStore((state) => state.chapters);
+  const chapters = useInfoStore((state) => state.chapters);
 
   if (!slug) return null;
 
@@ -41,7 +40,7 @@ export default function DownloadSettings({
       <Button
         tabIndex={-1}
         onClick={() => {
-          parseChapterList({ chapters, slug, titleInfo });
+          if (chapters) parseChapterList({ chapters, slug, titleInfo });
         }}
       >
         Скачать
@@ -51,34 +50,35 @@ export default function DownloadSettings({
 }
 
 interface PropsToParseChapters {
-  chapters: Map<number, ChapterInfo[]>;
+  chapters: Record<number, Chapter>;
   slug: string;
   titleInfo: TitleInfo;
 }
 
+type ParsedChapter = Awaited<ReturnType<typeof parseChapter>>[];
+
 // Refactor to Promise#allSettled
 function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
-  Array.from(chapters)
+  Object.entries(groupBy("volume", chapters))
     .map(
-      ([vol, ch]): [
-        number,
-        Promise<Awaited<ReturnType<typeof parseChapter>>[]>
-      ] => {
-        return [
-          vol,
+      ([volId, chapters]) =>
+        [
+          volId,
           Promise.all(
-            ch.toSorted(sortChapters("onlyByChapters")).map(async (c) => {
-              const chapters = await fetchChapter(
+            chapters.map((chapter) =>
+              fetchChapter(
                 slug,
                 undefined,
-                c.volume,
-                c.number
-              );
-              return parseChapter(chapters);
-            })
-          ),
-        ];
-      }
+                chapter.volume,
+                chapter.number
+              ).then(parseChapter)
+            )
+          ).catch((reason) => {
+            console.error(reason);
+
+            throw new Error("Fetching chapters error");
+          }),
+        ] as [string, Promise<ParsedChapter>]
     )
     .forEach(([vol, promisedChapters]) => {
       void (async () => {

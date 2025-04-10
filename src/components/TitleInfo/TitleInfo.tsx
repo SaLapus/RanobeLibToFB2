@@ -1,15 +1,8 @@
 import { CSSProperties, styled } from "@linaria/react";
 import { useMemo } from "react";
 
-import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
+import { Chapter } from "../../hooks/state/state";
 import type { TitleInfo } from "../../types/api/Title";
-
-interface TitleInfoProps {
-  className?: string;
-  style?: CSSProperties;
-  titleInfo: TitleInfo;
-  chaptersInfo: ChapterInfo[];
-}
 
 const InfoTable = styled.table`
   width: 100%;
@@ -21,25 +14,31 @@ const InfoTable = styled.table`
   }
 `;
 
+interface TitleInfoProps {
+  className?: string;
+  style?: CSSProperties;
+  titleInfo: TitleInfo;
+  chapters: Record<number, Chapter>;
+}
 export default function TitleInfo({
   className,
   style,
   titleInfo,
-  chaptersInfo,
+  chapters,
 }: TitleInfoProps) {
   const data = useMemo(() => {
-    if (!titleInfo || !chaptersInfo) return [];
+    if (!titleInfo || !chapters) return [];
 
     return [
       ["Тип", titleInfo.type.label],
       ["Формат", titleInfo.model],
       ["Выпуск", titleInfo.releaseDateString],
-      ["Глав", chaptersInfo.length],
+      ["Глав", Object.keys(chapters).length],
       ["Статус", titleInfo.status.label],
       ["Перевод", "&&&"],
-      ["Автор", titleInfo.authors.shift()?.name ?? ""],
+      ["Автор", titleInfo.authors[0]?.name ?? ""],
     ];
-  }, [titleInfo, chaptersInfo]);
+  }, [titleInfo, chapters]);
 
   return (
     <InfoTable className={className} style={style}>

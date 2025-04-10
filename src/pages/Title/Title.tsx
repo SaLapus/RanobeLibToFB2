@@ -33,25 +33,25 @@ const chapterStyles = css`
 `;
 
 export function Title() {
-  const [slug, titleInfo, chaptersInfo] = useInfoStore(
-    useShallow((state) => [state.slug, state.titleInfo, state.chaptersInfo])
+  const [slug, titleInfo, chapters] = useInfoStore(
+    useShallow((state) => [state.slug, state.titleInfo, state.chapters])
   );
 
-  return slug && titleInfo && chaptersInfo ? (
+  return slug && titleInfo && chapters ? (
     <Layout>
       <TitleInfo
         className={infoStyles}
         titleInfo={titleInfo}
-        chaptersInfo={chaptersInfo}
+        chapters={chapters}
       />
 
       <DownloadSettings
         className={downloadStyles}
         slug={slug}
         titleInfo={titleInfo}
-        chaptersInfo={chaptersInfo}
+        chapters={chapters}
       />
-      <ChapterList className={chapterStyles} chaptersInfo={chaptersInfo} />
+      <ChapterList className={chapterStyles} chapters={chapters} />
     </Layout>
   ) : (
     <div>⚙️Грузимся</div>
