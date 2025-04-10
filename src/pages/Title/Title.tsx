@@ -9,14 +9,24 @@ import { TitleInfo } from "../../components/TitleInfo";
 import { useInfoStore } from "../../hooks/state/state";
 
 const Layout = styled.main`
-  display: grid;
   height: 100%;
 
+  padding: 0 1em 1em 1em;
+
+  display: grid;
   grid-template-columns: 1fr 2fr;
   grid-template-rows: repeat(3, 1fr);
   grid-gap: 10px;
 
   overflow: hidden;
+
+  & > * {
+    border-style: solid;
+    border-color: var(--color-normal);
+    border-width: 2px;
+    border-radius: 1em;
+    box-shadow: 0 3px 8px rgba(0 0 0 / 24%);
+  }
 `;
 
 const infoStyles = css`

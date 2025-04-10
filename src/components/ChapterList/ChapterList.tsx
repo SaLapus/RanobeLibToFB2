@@ -1,12 +1,24 @@
 import { CSSProperties, styled } from "@linaria/react";
 import { useShallow } from "zustand/react/shallow";
 
+import { css, cx } from "@linaria/core";
 import { useMemo } from "react";
 import { Chapter, useInfoStore } from "../../hooks/state/state";
 import { sortChapters } from "../../utils/cmpChapters";
 
+const scrollContainer = css`
+  height: 100%;
+
+  margin: 0 1em -5em 0;
+  padding: 1em 0 1em 10px;
+
+  overflow-x: hidden;
+`;
 const OverflowContainer = styled.div`
-  overflow: scroll;
+  overflow-y: scroll;
+  overflow-x: hidden;
+
+  width: calc(100% + 20px);
 `;
 
 const TitleTable = styled.table`
@@ -14,8 +26,6 @@ const TitleTable = styled.table`
 
   table-layout: fixed;
   border-collapse: collapse;
-  border-color: var(--color-normal);
-  overflow: hidden;
 
   & * {
     height: fit-content;
@@ -27,32 +37,64 @@ const TitleTable = styled.table`
 const TableHead = styled.thead`
   position: sticky;
   top: 0;
+
   background-color: white;
+  box-shadow: 0 3px 8px rgba(0 0 0 / 24%);
 
   & th:nth-child(1) {
-    width: 10%;
+    width: 4%;
   }
 
   & th:nth-child(2) {
-    width: 15%;
+    width: 6%;
   }
 
   & th:nth-child(3) {
-    width: 15%;
+    width: 10%;
   }
 
   & th:nth-child(4) {
-    width: 60%;
+    width: 80%;
   }
 `;
-const TableBody = styled.tbody`
-  overflow-y: scroll;
+const Line = styled.div`
+  width: 100vw;
+  height: 2px;
+  background-color: var(--color-normal);
+
+  position: absolute;
 `;
+const TableBody = styled.tbody``;
 const ContentRow = styled.tr`
+  margin-inline: 2px;
   cursor: pointer;
 
   &:hover {
     background-color: var(--color-hover);
+  }
+`;
+const Checkbox = styled.div<{ checked: boolean }>`
+  width: 16px;
+  height: 16px;
+  border: 2px solid
+    ${(props) =>
+      props.checked ? "var(--color-normal)" : "var(--font-primary)"};
+  border-radius: 3px;
+  background-color: ${(props) =>
+    props.checked ? "var(--color-normal)" : "transparent"};
+  position: static;
+
+  &::after {
+    content: "";
+    display: ${(props) => (props.checked ? "block" : "none")};
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    position: relative;
+    top: 0;
+    left: 5px;
   }
 `;
 const Cell = styled.td`
@@ -81,68 +123,66 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
   );
 
   return (
-    <OverflowContainer className={className} style={style} tabIndex={-1}>
-      <TitleTable>
-        <TableHead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Том</th>
-            <th scope="col">Глава</th>
-            <th scope="col">Название</th>
-          </tr>
+    <div className={cx(scrollContainer, className)} style={style} tabIndex={-1}>
+      <OverflowContainer tabIndex={-1}>
+        <TitleTable>
+          <TableHead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Том</th>
+              <th scope="col">Глава</th>
+              <th scope="col">Название</th>
+            </tr>
 
-          <tr className="controls">
-            <td colSpan={4}>
-              <input
-                type="checkbox"
-                className={"controls"}
-                name=""
-                id=""
-                onChange={(event) => {
-                  if (event.target.checked) allChapters();
-                  else deleteChapters();
-                }}
-              />
-              Выбрать все
-            </td>
-          </tr>
-        </TableHead>
+            <tr className="controls">
+              <td colSpan={4}>
+                <label>
+                  <input
+                    type="checkbox"
+                    className={"controls"}
+                    name=""
+                    id=""
+                    onChange={(event) => {
+                      if (event.target.checked) allChapters();
+                      else deleteChapters();
+                    }}
+                  />
+                  Выбрать все
+                </label>
+              </td>
+            </tr>
 
-        <TableBody>
-          {groupedChapters.map((chapter, i) =>
-            useMemo(
-              () => (
-                <ContentRow
-                  key={chapter.id}
-                  tabIndex={0}
-                  onClick={() => toggleChapter(chapter.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === " " || event.key === "Enter") {
-                      event.preventDefault();
-                      toggleChapter(chapter.id);
-                    }
-                  }}
-                >
-                  <Cell>
-                    <input
-                      type={"checkbox"}
-                      tabIndex={-1}
-                      checked={chapter.checked}
-                      onChange={() => {
-                        return;
-                      }}
-                    />
-                  </Cell>
-                  <Cell>Том {chapter.volume}</Cell>
-                  <Cell>Глава {chapter.number}</Cell>
-                  <Cell>{chapter.name ? chapter.name : ""}</Cell>
-                </ContentRow>
-              ),
-              [groupedChapters[i].checked]
-            )
-          )}
-        </TableBody>
-      </TitleTable>
-    </OverflowContainer>
+            <Line />
+          </TableHead>
+          <TableBody>
+            {groupedChapters.map((chapter, i) =>
+              useMemo(
+                () => (
+                  <ContentRow
+                    key={chapter.id}
+                    tabIndex={0}
+                    onClick={() => toggleChapter(chapter.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === " " || event.key === "Enter") {
+                        event.preventDefault();
+                        toggleChapter(chapter.id);
+                      }
+                    }}
+                  >
+                    <Cell>
+                      <Checkbox checked={chapter.checked} />
+                    </Cell>
+                    <Cell>Том {chapter.volume}</Cell>
+                    <Cell>Глава {chapter.number}</Cell>
+                    <Cell>{chapter.name ? chapter.name : ""}</Cell>
+                  </ContentRow>
+                ),
+                [groupedChapters[i].checked]
+              )
+            )}
+          </TableBody>
+        </TitleTable>
+      </OverflowContainer>
+    </div>
   );
 }
