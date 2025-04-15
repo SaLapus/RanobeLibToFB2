@@ -1,199 +1,105 @@
 /* eslint-disable no-debugger */
 
-import mime from "./mimeBicycle";
-
 import { fetch } from "@tauri-apps/plugin-http";
 
+import mime from "./mimeBicycle";
+
 import * as Chapter from "../types/api/Chapter";
+import { AllNodes, Doc, Mark } from "../types/api/Chapter";
 import * as FB2 from "../types/fb2";
-import { ElemOrArr } from "../types/toolTypes";
+
+type XMLNode = Record<
+  string,
+  {
+    "@"?: Record<string, string>;
+    "#"?: string | XMLNode | (string | XMLNode)[];
+  }
+>;
+interface ImagesContext {
+  imageIDs: string[];
+  imagesSRCs: string[];
+}
 
 export interface ChapterData {
   chapter: FB2.Chapter;
   binary: FB2.Binary[];
 }
 
-export default async function parseChapter(chapterInfo: Chapter.Data) {
-  const chapterContent = chapterInfo.content;
-  const binary: FB2.Binary[] = [];
+export default async function parseChapter(info: Chapter.Data) {
+  const { name, content, attachments } = info;
 
-  const fb2Chapter: FB2.Chapter = {
-    section: {
-      "#": [
-        {
-          title: {
-            p: chapterInfo.name,
-          },
-        },
-      ],
+  switch (typeof content) {
+    case "string":
+      parseTextContent(content);
+      break;
+    case "object":
+      if (Object.hasOwn(content, "type") && content.type === "doc") {
+        parseDocContent(content);
+      }
+      throw new Error("UNKNOWN CONTENT TYPE");
+    default:
+      throw new Error("UNKNOWN CONTENT TYPE");
+  }
+
+  return [
+    {
+      section: {
+        "#": [],
+      },
     },
-  };
+  ];
+}
 
-  switch (typeof chapterContent) {
-    case "string": {
-      const texts = (
-        chapterContent.match(/<[a-z]+? [\s\S]*?\/[a-z]*?>/g) ?? [chapterContent]
-      ).flatMap((str) => {
-        return str
-          .replaceAll(/<.?p.*?>/g, "")
-          .replaceAll("&nbsp;", " ")
-          .split("<br />\r\n")
-          .map((str) => str.trim());
-      });
+function parseTextContent(this: ImagesContext | void, content: string) {
+  const texts = (
+    content.match(/<[a-z]+? [\s\S]*?\/[a-z]*?>/g) ?? [content]
+  ).flatMap((str) => {
+    return str
+      .replaceAll(/<.?p.*?>/g, "")
+      .replaceAll("&nbsp;", " ")
+      .split("<br />\r\n")
+      .map((str) => str.trim());
+  });
 
-      const elementsPromises = texts.map(async (text) => {
-        let el: FB2.Paragraph | FB2.Image | FB2.EmptyLine;
-        if (/<img [\s\S]*?\/>/.exec(text)) {
-          const [, src] = /<img [\s\S]*?src="([\s\S]*?)" \/>/.exec(text)!;
+  const elements = texts.map((text) => {
+    let el: XMLNode = { "empty-line": {} };
 
-          console.log(1);
+    if (/<img [\s\S]*?\/>/.test(text)) {
+      try {
+        if (this) {
+          const [, id, ext] = /<img [\s\S]*?src="([\S]*?)\.(\w+)" \/>/.exec(
+            text
+          )!;
 
-          const image = await fetchImageAsFB2Binary(src);
-
-          console.log(2);
-
-          if (image) binary.push(image);
+          this.imagesSRCs.push(`${id}.${ext}`);
+          this.imageIDs.push(id);
 
           el = {
             image: {
-              "@l:href": `#${image?.["@id"]}`,
+              "@": { "l:href": `#${id}` },
             },
           };
-        } else if (text.length > 0) el = { p: text };
-        else el = { "empty-line": {} };
-
-        return el;
-      });
-      const elements = await Promise.allSettled(elementsPromises);
-
-      elements
-        .filter((el) => el.status === "rejected")
-        .forEach((el) => console.error(el.reason));
-
-      fb2Chapter.section["#"].push(
-        ...elements
-          .filter((el) => el.status === "fulfilled")
-          .map((el) => el.value)
-      );
-      break;
-    }
-    case "object": {
-      async function parseElement(
-        el: Chapter.ChapterObjects
-      ): Promise<ElemOrArr<FB2.MarkUpElements> | string> {
-        switch (el.type) {
-          case "doc": {
-            return (await Promise.all(
-              el.content.flatMap((par) => parseElement(par))
-            )) as (FB2.Paragraph | FB2.Image)[];
-          }
-          case "paragraph": {
-            if (!el.content) return { "empty-line": {} };
-
-            const parContent: (FB2.Paragraph | FB2.EmptyLine)[] = [];
-            let parContentTemp: (string | FB2.Style)[] = [];
-            const createPar: (
-              elems: (string | FB2.Style)[]
-            ) => FB2.Paragraph = (elems) => ({
-              p: {
-                "#": elems,
-              },
-            });
-
-            for (const paragraph of el.content) {
-              const pEl = (await parseElement(paragraph)) as
-                | string
-                | FB2.Style
-                | FB2.EmptyLine;
-              if (Object.keys(pEl).includes("empty-line")) {
-                if (parContentTemp.length > 0) {
-                  parContent.push(createPar(parContentTemp));
-                  parContentTemp = [];
-                }
-
-                parContent.push(pEl as FB2.EmptyLine);
-              } else parContentTemp.push(pEl as string | FB2.Style);
-            }
-
-            if (parContentTemp.length > 0) {
-              parContent.push(createPar(parContentTemp));
-              parContentTemp = [];
-            }
-
-            return parContent;
-          }
-
-          case "image": {
-            return await Promise.all(
-              el.attrs.images.map(async ({ image: image_src }) => {
-                const path = chapterInfo.attachments.find(
-                  ({ name }) => name === image_src
-                )?.url;
-                const src = "https://ranobelib.me" + path;
-
-                if (!path) debugger;
-
-                const image = await fetchImageAsFB2Binary(src);
-                if (image) binary.push(image);
-
-                const temp: FB2.Image = {
-                  image: {
-                    "@l:href": `#${image?.["@id"]}`,
-                  },
-                };
-
-                return temp;
-              })
-            );
-          }
-          case "hardBreak": {
-            return { "empty-line": {} };
-          }
-          case "text": {
-            let pEl: string | FB2.Style = el.text;
-
-            el.marks?.forEach(({ type }) => {
-              switch (type) {
-                case "italic":
-                  pEl = {
-                    emphasis: pEl,
-                  };
-                  break;
-                case "bold":
-                  pEl = {
-                    strong: pEl,
-                  };
-                  break;
-                default:
-                  return;
-              }
-            });
-
-            return pEl;
-          }
-          default:
-            debugger;
-            throw new Error("Unknown element");
         }
+      } catch (e) {
+        console.error(e);
+
+        el = {
+          image: {
+            "@": { "data-message": "Error" },
+          },
+        };
       }
+    } else if (text.length > 0)
+      el = {
+        p: {
+          "#": text,
+        },
+      };
 
-      fb2Chapter.section["#"].push(
-        ...((await parseElement(chapterContent)) as (
-          | FB2.Paragraph
-          | FB2.Image
-        )[])
-      );
-      break;
-    }
-    default:
-      debugger;
-      throw new Error("Unknown chapter content type");
-  }
+    return el;
+  });
 
-  return {
-    chapter: fb2Chapter,
-    binary,
-  };
+  return elements;
 }
 
 async function fetchImageAsFB2Binary(src: string) {
@@ -214,13 +120,13 @@ async function fetchImageAsFB2Binary(src: string) {
   } else console.log("Image Bytes Received");
 
   return {
-    "@id": await parseUrlToHash(src),
+    "@id": await reduceNameToHash(src),
     "@content-type": mime.lookup(src),
     "#": base64Image,
   };
 }
 
-async function parseUrlToHash(src: string) {
+async function reduceNameToHash(src: string) {
   const parsedUrl = new URL(src);
 
   const pathname = parsedUrl.pathname;
@@ -235,4 +141,114 @@ async function parseUrlToHash(src: string) {
     .join("");
 
   return `img_${hashHex}`;
+}
+
+function parseMarks(text: string, marks?: Mark[]): string | XMLNode {
+  if (!marks || marks.length === 0) return text;
+
+  return marks.reduce<string | XMLNode>((node, mark) => {
+    switch (mark.type) {
+      case "bold":
+        return { strong: { "#": node } };
+      case "italic":
+        return { emphasis: { "#": node } };
+      default:
+        return node;
+    }
+  }, text);
+}
+
+function parseNode(
+  this: ImagesContext | void,
+  node: AllNodes
+): string | XMLNode {
+  switch (node.type) {
+    case "doc":
+      return {
+        section: {
+          "#": node.content.flatMap<string | XMLNode>((child) =>
+            parseNode(child)
+          ),
+        },
+      };
+
+    case "paragraph": {
+      const content = node.content.flatMap<string | XMLNode>((child) =>
+        parseNode(child)
+      );
+      if (node.attrs?.textAlign === "center") {
+        return {
+          p: {
+            "#": [
+              {
+                // Rewrite. Im not sure all center aligned paragraphs are titles.
+                subtitle: {
+                  "#": content,
+                },
+              },
+            ],
+          },
+        };
+      }
+      return {
+        p: {
+          "#": content,
+        },
+      };
+    }
+
+    case "heading": {
+      const content = node.content?.map((child) => parseNode(child)) || [];
+      return node.attrs.level === 1
+        ? {
+            title: {
+              "#": content,
+            },
+          }
+        : {
+            subtitle: {
+              "#": content,
+            },
+          };
+    }
+
+    case "image": {
+      if (this) {
+        this.imageIDs.push(node.attrs.images[0].image);
+
+        return {
+          image: {
+            "@": {
+              "l:href": `#${node.attrs.images[0].image}`,
+            },
+          },
+        };
+      }
+      throw new Error("NO IMAGE ID");
+    }
+
+    case "hardBreak":
+      return {
+        "empty-line": {},
+      };
+
+    case "text":
+      return parseMarks(node.text, node.marks);
+
+    default:
+      console.error("Unknown node");
+      console.error(node);
+
+      return {};
+  }
+}
+
+export function parseDocContent(doc: Doc): [(string | XMLNode)[], string[]] {
+  const context: ImagesContext = { imageIDs: [], imagesSRCs: [] };
+
+  const pNode = parseNode.bind(context);
+
+  const nodes = doc.content.map((node) => pNode(node));
+
+  return [nodes, context.imageIDs];
 }
