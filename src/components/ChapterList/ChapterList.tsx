@@ -42,19 +42,19 @@ const TableHead = styled.thead`
   box-shadow: 0 3px 8px rgba(0 0 0 / 24%);
 
   & th:nth-child(1) {
-    width: 4%;
+    width: 2em;
   }
 
   & th:nth-child(2) {
-    width: 6%;
+    width: 4em;
   }
 
   & th:nth-child(3) {
-    width: 10%;
+    width: 6em;
   }
 
   & th:nth-child(4) {
-    width: 80%;
+    width: auto;
   }
 `;
 const Line = styled.div`
@@ -71,6 +71,10 @@ const ContentRow = styled.tr`
 
   &:hover {
     background-color: var(--color-hover);
+  }
+
+  &:active {
+    background-color: var(--color-click);
   }
 `;
 const Checkbox = styled.div<{ checked: boolean }>`

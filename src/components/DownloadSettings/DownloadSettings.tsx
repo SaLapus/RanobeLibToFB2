@@ -1,3 +1,4 @@
+import { css, cx } from "@linaria/core";
 import { CSSProperties, styled } from "@linaria/react";
 
 import { fetchChapter } from "../../utils/api";
@@ -9,14 +10,9 @@ import { Chapter, useInfoStore } from "../../hooks/state/state";
 
 import type { TitleInfo } from "../../types/api/Title";
 
-interface DowloadSettingsProps {
-  className?: string;
-  style?: CSSProperties;
-  slug: string;
-  titleInfo: TitleInfo;
-  chapters: Record<number, Chapter>;
-}
-
+const container = css`
+  overflow: hidden;
+`;
 const Button = styled.button`
   padding: 10px 20px;
   font-size: 16px;
@@ -24,6 +20,13 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+interface DowloadSettingsProps {
+  className?: string;
+  style?: CSSProperties;
+  slug: string;
+  titleInfo: TitleInfo;
+  chapters: Record<number, Chapter>;
+}
 export default function DownloadSettings({
   className,
   style,
@@ -36,7 +39,7 @@ export default function DownloadSettings({
 
   return (
     // ИСПРАВИТЬ
-    <div className={className} style={style}>
+    <div className={cx(className, container)} style={style}>
       <Button
         tabIndex={-1}
         onClick={() => {
@@ -57,7 +60,6 @@ interface PropsToParseChapters {
 
 type ParsedChapter = Awaited<ReturnType<typeof parseChapter>>[];
 
-// Refactor to Promise#allSettled
 function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
   Object.entries(groupBy("volume", chapters))
     .map(

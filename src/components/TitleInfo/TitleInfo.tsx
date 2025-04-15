@@ -4,6 +4,10 @@ import { useMemo } from "react";
 import { Chapter } from "../../hooks/state/state";
 import type { TitleInfo } from "../../types/api/Title";
 
+const LayoutContainer = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 const InfoTable = styled.table`
   width: 100%;
   table-layout: fixed;
@@ -41,15 +45,17 @@ export default function TitleInfo({
   }, [titleInfo, chapters]);
 
   return (
-    <InfoTable className={className} style={style}>
-      <tbody>
-        {data.map((row) => (
-          <tr key={row[0]}>
-            <th>{row[0]}</th>
-            <td>{row[1]}</td>
-          </tr>
-        ))}
-      </tbody>
-    </InfoTable>
+    <LayoutContainer>
+      <InfoTable className={className} style={style}>
+        <tbody>
+          {data.map((row) => (
+            <tr key={row[0]}>
+              <th>{row[0]}</th>
+              <td>{row[1]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </InfoTable>
+    </LayoutContainer>
   );
 }
