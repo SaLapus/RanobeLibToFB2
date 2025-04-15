@@ -54,18 +54,33 @@ export interface Attachment {
   height: number;
 }
 
-export type ChapterObjects = Doc | Paragraph | Image | HardBrake | TextContent;
-export type Content = Extract<ChapterObjects, { content: unknown }>;
+export type AllNodes =
+  | Doc
+  | Paragraph
+  | Heading
+  | Image
+  | HardBrake
+  | TextContent;
+export type TopLevelNodes = Doc | Paragraph | Image | Heading;
+export type ContentLike = Extract<AllNodes, { content: unknown }>;
 
 export interface Doc {
   type: "doc";
-  content: (Paragraph | Image)[];
+  content: (Paragraph | Image | Heading)[];
 }
 
 export interface Paragraph {
   type: "paragraph";
   content: (TextContent | HardBrake)[];
   attrs?: Attrs;
+}
+
+export interface Heading {
+  type: "heading";
+  content?: TextContent[];
+  attrs: {
+    level: 1 | 2 | 3 | 4 | 5;
+  };
 }
 
 export interface Image {
