@@ -7,7 +7,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "yarn vite:dev",
-    "beforeBuildCommand": "yarn vite:build"
+    "beforeBuildCommand": "yarn vite:tauri"
   },
   "app": {
     "windows": [

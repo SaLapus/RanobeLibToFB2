@@ -7,7 +7,9 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
     "vite:dev": "vite",
-    "vite:build": "tsc -b && vite build",
+    "vite:tauri": "tsc -b && vite build --mode tauri",
+    "vite:web": "tsc -b && vite build --mode web",
+    "vite:build": "tsc -b && vite build --mode web && vite build --mode tauri",
     "release": "standard-version",
     "lint": "eslint .",
     "fix": "eslint --fix .",
@@ -16,6 +18,7 @@
   },
   "dependencies": {
     "@tauri-apps/plugin-http": "^2.3.0",
+    "firebase": "^11.6.0",
     "immer": "^10.1.1",
     "mime-standard": "^1.0.3",
     "react": "^18.3.1",
