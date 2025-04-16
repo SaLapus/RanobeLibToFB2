@@ -1,14 +1,11 @@
-/* eslint-disable no-debugger */
-
 import { fetch } from "@tauri-apps/plugin-http";
 
 import mime from "./mimeBicycle";
 
 import * as Chapter from "../types/api/Chapter";
-import { AllNodes, Doc, Mark } from "../types/api/Chapter";
-import * as FB2 from "../types/fb2";
+import { AllNodes, Mark } from "../types/api/Chapter";
 
-type XMLNode = Record<
+export type XMLNode = Record<
   string,
   {
     "@"?: Record<string, string>;
@@ -20,37 +17,95 @@ interface ImagesContext {
   imagesSRCs: string[];
 }
 
-export interface ChapterData {
-  chapter: FB2.Chapter;
-  binary: FB2.Binary[];
+export interface ParsedChapter {
+  paragraphs: XMLNode;
+  binaries: XMLNode[];
 }
 
-export default async function parseChapter(info: Chapter.Data) {
+export default async function parseChapter(
+  info: Chapter.Data
+): Promise<ParsedChapter> {
   const { name, content, attachments } = info;
 
-  switch (typeof content) {
-    case "string":
-      parseTextContent(content);
-      break;
-    case "object":
-      if (Object.hasOwn(content, "type") && content.type === "doc") {
-        parseDocContent(content);
-      }
-      throw new Error("UNKNOWN CONTENT TYPE");
-    default:
-      throw new Error("UNKNOWN CONTENT TYPE");
+  const context: ImagesContext = { imageIDs: [], imagesSRCs: [] };
+  let nodes: (string | XMLNode)[] = [];
+  try {
+    switch (typeof content) {
+      case "string":
+        {
+          const pTNode = parseTextContent.bind(context);
+
+          nodes = pTNode(content);
+        }
+        break;
+      case "object":
+        if (Object.hasOwn(content, "type") && content.type === "doc") {
+          const pNode = parseNode.bind(context);
+
+          nodes = content.content.map((node) => pNode(node));
+        }
+        throw new Error("UNKNOWN CONTENT TYPE");
+      default:
+        throw new Error("UNKNOWN CONTENT TYPE");
+    }
+  } catch (e) {
+    console.error(e);
+
+    return {
+      paragraphs: {},
+      binaries: [],
+    };
   }
 
-  return [
-    {
+  const binaries: XMLNode[] = [];
+
+  if (context.imagesSRCs.length > 0) {
+    const images = await Promise.all(
+      context.imagesSRCs.map(async (src) => {
+        const name =
+          context.imageIDs.find((id) => src.includes(id)) ??
+          /\S+(?=\.)/gm.exec(src)![0];
+
+        return fetchImageAsFB2Binary(src, name);
+      })
+    );
+
+    binaries.concat(images.filter((node) => !!node));
+  } else if (context.imageIDs.length > 0) {
+    const images = await Promise.all(
+      context.imageIDs.map(async (id) => {
+        const image = attachments.find((att) => att.name === id);
+        if (image) return fetchImageAsFB2Binary(image.url, id);
+      })
+    );
+
+    binaries.concat(images.filter((node) => !!node));
+  }
+
+  return {
+    paragraphs: {
       section: {
-        "#": [],
+        "#": [
+          {
+            title: {
+              "#": name,
+            },
+          },
+          ...nodes,
+        ],
       },
     },
-  ];
+
+    binaries,
+  };
 }
 
-function parseTextContent(this: ImagesContext | void, content: string) {
+function parseTextContent(
+  this: ImagesContext | void,
+  content: string
+): XMLNode[] {
+  // Add validation for tags
+  // Check for unknown tags
   const texts = (
     content.match(/<[a-z]+? [\s\S]*?\/[a-z]*?>/g) ?? [content]
   ).flatMap((str) => {
@@ -67,7 +122,7 @@ function parseTextContent(this: ImagesContext | void, content: string) {
     if (/<img [\s\S]*?\/>/.test(text)) {
       try {
         if (this) {
-          const [, id, ext] = /<img [\s\S]*?src="([\S]*?)\.(\w+)" \/>/.exec(
+          const [, id, ext] = /<img [\s\S]*?src="[\S\s]*\/([\S\s]*)\.(\w+)" \/>/.exec(
             text
           )!;
 
@@ -81,6 +136,7 @@ function parseTextContent(this: ImagesContext | void, content: string) {
           };
         }
       } catch (e) {
+        console.error(text);
         console.error(e);
 
         el = {
@@ -102,45 +158,48 @@ function parseTextContent(this: ImagesContext | void, content: string) {
   return elements;
 }
 
-async function fetchImageAsFB2Binary(src: string) {
-  const base64Image = await fetch(src)
-    .then((res) => res.arrayBuffer())
-    .then((buffer) =>
-      btoa(
-        [...new Uint8Array(buffer)]
-          .map((char) => String.fromCharCode(char))
-          .join("")
-      )
-    )
-    .catch((e) => console.error(e));
-
-  if (!base64Image) {
-    console.error("No Image Bytes Received");
-    return null;
-  } else console.log("Image Bytes Received");
-
-  return {
-    "@id": await reduceNameToHash(src),
-    "@content-type": mime.lookup(src),
-    "#": base64Image,
-  };
+declare global {
+  interface Window {
+    __TAURI_INTERNALS__?: unknown;
+  }
 }
+async function fetchImageAsFB2Binary(
+  src: string,
+  name: string
+): Promise<XMLNode> {
+  try {
+    if (!window.__TAURI_INTERNALS__) throw new Error("NOT TAURI APP");
+    const base64Image = await fetch(src)
+      .then((res) => res.arrayBuffer())
+      .then((buffer) =>
+        btoa(
+          [...new Uint8Array(buffer)]
+            .map((char) => String.fromCharCode(char))
+            .join("")
+        )
+      )
+      .catch((e) => console.error(e));
 
-async function reduceNameToHash(src: string) {
-  const parsedUrl = new URL(src);
+    if (!base64Image) throw new Error("No Image Bytes Received");
+    const contentType = mime.lookup(src);
+    if (!contentType) throw new Error("No Content-Type for Image");
 
-  const pathname = parsedUrl.pathname;
-  const name = pathname.substring(pathname.lastIndexOf("/") + 1);
+    return {
+      binary: {
+        "@": {
+          id: name,
+          "content-type": contentType,
+        },
+        "#": base64Image,
+      },
+    };
+  } catch (e) {
+    console.error(e);
 
-  const encoder = new TextEncoder();
-  const data = encoder.encode(name);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const first16Bytes = new Uint8Array(hashBuffer).slice(0, 16);
-  const hashHex = Array.from(first16Bytes)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
-
-  return `img_${hashHex}`;
+    return {
+      binary: {},
+    };
+  }
 }
 
 function parseMarks(text: string, marks?: Mark[]): string | XMLNode {
@@ -243,12 +302,20 @@ function parseNode(
   }
 }
 
-export function parseDocContent(doc: Doc): [(string | XMLNode)[], string[]] {
-  const context: ImagesContext = { imageIDs: [], imagesSRCs: [] };
+// Old id generator
+export async function reduceNameToHash(src: string) {
+  const parsedUrl = new URL(src);
 
-  const pNode = parseNode.bind(context);
+  const pathname = parsedUrl.pathname;
+  const name = pathname.substring(pathname.lastIndexOf("/") + 1);
 
-  const nodes = doc.content.map((node) => pNode(node));
+  const encoder = new TextEncoder();
+  const data = encoder.encode(name);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const first16Bytes = new Uint8Array(hashBuffer).slice(0, 16);
+  const hashHex = Array.from(first16Bytes)
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
 
-  return [nodes, context.imageIDs];
+  return `img_${hashHex}`;
 }

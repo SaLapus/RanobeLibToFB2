@@ -1,1 +1,0 @@
-export type ElemOrArr<Element> = Element | Element[];
