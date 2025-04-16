@@ -58,42 +58,31 @@ interface PropsToParseChapters {
   titleInfo: TitleInfo;
 }
 
-type ParsedChapter = Awaited<ReturnType<typeof parseChapter>>[];
-
 function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
-  Object.entries(groupBy("volume", chapters))
-    .map(
-      ([volId, chapters]) =>
-        [
-          volId,
-          Promise.all(
-            chapters.map((chapter) =>
-              fetchChapter(
-                slug,
-                undefined,
-                chapter.volume,
-                chapter.number
-              ).then(parseChapter)
-            )
-          ).catch((reason) => {
-            console.error(reason);
+  const checkedChapters = Object.fromEntries(
+    Object.entries(chapters).filter(([, chapter]) => chapter.checked)
+  );
 
-            throw new Error("Fetching chapters error");
-          }),
-        ] as [string, Promise<ParsedChapter>]
-    )
-    .forEach(([vol, promisedChapters]) => {
-      void (async () => {
-        const chs = await promisedChapters;
+  void Object.entries(groupBy("volume", checkedChapters)).map(
+    async ([volId, volume]) => {
+      const dowloadedVolume = await Promise.all(
+        volume.map((chapter) =>
+          fetchChapter(slug, undefined, chapter.volume, chapter.number).then(
+            parseChapter
+          )
+        )
+      ).catch((reason) => {
+        console.error(reason);
 
-        // eslint-disable-next-line no-debugger
-        debugger;
-        printBook(
-          titleInfo,
-          vol.toString(),
-          chs.map((c) => c.chapter),
-          chs.flatMap((c) => c.binary)
-        );
-      })();
-    });
+        throw new Error("Fetching chapters error");
+      });
+
+      printBook(
+        titleInfo,
+        volId,
+        dowloadedVolume.map((chapter) => chapter.paragraphs),
+        dowloadedVolume.flatMap((chapter) => chapter.binaries)
+      );
+    }
+  );
 }

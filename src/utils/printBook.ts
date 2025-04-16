@@ -1,16 +1,15 @@
-/* eslint-disable no-debugger */
-
 import sanitize from "sanitize-filename";
 import { create } from "xmlbuilder2";
 
+import { XMLNode } from "./parseChapters";
+
 import { TitleInfo } from "../types/api/Title";
-import * as FB2 from "../types/fb2";
 
 export default function printBook(
   titleInfo: TitleInfo,
   volumeId: string,
-  chapters: FB2.Chapter[],
-  binary: FB2.Binary[] = []
+  chapters: XMLNode[],
+  binary: XMLNode[] = []
 ) {
   const bookTemplate = {
     FictionBook: {
@@ -32,8 +31,6 @@ export default function printBook(
       binary,
     },
   };
-
-  debugger;
 
   const book = create(bookTemplate);
   const xml = book.end({ prettyPrint: false });
