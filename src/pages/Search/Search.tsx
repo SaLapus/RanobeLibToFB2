@@ -76,7 +76,7 @@ export function Search() {
   }, [q]);
 
   return (
-    <>
+    <div>
       <SearchContainer>
         <label htmlFor="search">Поиск: </label>
         <SearchInput
@@ -102,6 +102,6 @@ export function Search() {
             <SearchedCard key={title.id} novel={title} />
           ))}
       </ResultsContainer>
-    </>
+    </div>
   );
 }

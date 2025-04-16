@@ -1,8 +1,8 @@
+import { css, cx } from "@linaria/core";
 import { CSSProperties, styled } from "@linaria/react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
-import { css, cx } from "@linaria/core";
-import { useMemo } from "react";
 import { Chapter, useInfoStore } from "../../hooks/state/state";
 import { sortChapters } from "../../utils/cmpChapters";
 
