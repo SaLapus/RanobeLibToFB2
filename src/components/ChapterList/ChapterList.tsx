@@ -57,7 +57,7 @@ const TableHead = styled.thead`
     width: auto;
   }
 `;
-const Line = styled.div`
+const Line = styled.tr`
   width: 100vw;
   height: 2px;
   background-color: var(--color-normal);
