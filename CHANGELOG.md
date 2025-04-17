@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/SaLapus/RanobeLibToFB2/compare/v0.2.0-alpha...v1.0.0) (2025-04-17)
+
+
+### Bug Fixes
+
+* updating README ([fc918af](https://github.com/SaLapus/RanobeLibToFB2/commit/fc918af4d513054704b73bf8a2d8e843adce7b6f))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([59364ea](https://github.com/SaLapus/RanobeLibToFB2/commit/59364eaec00eb2988e49dbb3f6678166a6006078))
+
 ## [0.2.0-alpha](https://github.com/SaLapus/RanobeLibToFB2/compare/v0.1.0-alpha...v0.2.0-alpha) (2025-04-17)
 
 
