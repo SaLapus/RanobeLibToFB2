@@ -1,3 +1,5 @@
+name: release-please
+
 on:
   push:
     branches:
@@ -6,8 +8,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-
-name: release-please
 
 jobs:
   release-please:
@@ -23,3 +23,4 @@ jobs:
           # for more options
           release-type: node
           config-file: releace-please-config.json
+          manifest-file: .release-please-manifest.json
