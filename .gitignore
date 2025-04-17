@@ -25,3 +25,4 @@ books
 *.sw?
 
 .yarn
+.firebase
