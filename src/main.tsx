@@ -1,11 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import initFirebase from "./firebase.ts";
 
 declare global {
   const __TARGET__: string;
 }
 if (__TARGET__ === "web") {
-  void import("./firebase.ts");
+  initFirebase();
 }
 
 import App from "./App.tsx";

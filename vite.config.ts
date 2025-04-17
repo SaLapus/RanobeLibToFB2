@@ -1,18 +1,17 @@
 import react from "@vitejs/plugin-react-swc";
 import wyw from "@wyw-in-js/vite";
+import conditionalImport from "rollup-plugin-conditional-import";
 import { defineConfig } from "vite";
 
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig((config) => {
-  console.log(config);
-  
   return {
-    // prevent vite from obscuring rust errors
     define: {
-      __TARGET__: config.mode,
+      __TARGET__: `"${config.mode}"`,
     },
+    // prevent vite from obscuring rust errors
     clearScreen: false,
     server: {
       // Tauri expects a fixed port, fail if that port is not available
@@ -32,16 +31,25 @@ export default defineConfig((config) => {
       minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
       // produce sourcemaps for debug builds
       // sourcemap: !!process.env.TAURI_ENV_DEBUG,
-      sourcemap: process.env.NODE_ENV !== "production",
+      sourcemap:
+        !!process.env.TAURI_ENV_DEBUG || process.env.NODE_ENV !== "production",
 
       rollupOptions: {
         output: {
-          manualChunks: {
-            react: ["react", "react-dom"],
-            firebase: ["firebase/app", "firebase/analytics"],
-            xml: ["xmlbuilder2"],
+          manualChunks: (id) => {
+            if (id.includes("react")) return "react";
+            if (id.includes("firebase") && config.mode === "web")
+              return "firebase";
+            if (id.includes("xmlbuilder2")) return "xml";
+
+            return null;
           },
         },
+        plugins: [
+          conditionalImport({
+            env: "__TARGET__",
+          }),
+        ],
       },
     },
 
