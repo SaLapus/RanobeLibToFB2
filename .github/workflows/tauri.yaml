@@ -2,8 +2,8 @@ name: tauri
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*"
 
 # This workflow will trigger on each push to the `release` branch to create or update a GitHub release, build your app, and upload the artifacts to the release.
 
@@ -63,9 +63,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TAURI_TOKEN }}
         with:
-          tagName: fb2creator-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: "RanobeLibToFB2 v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
-          releaseDraft: true
-          prerelease: false
+          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           args: ${{ matrix.args }}

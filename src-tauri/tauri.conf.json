@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "RanobeLib2FB2",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "identifier": "com.salapus.fb2creator",
   "build": {
     "frontendDist": "../dist/tauri",
