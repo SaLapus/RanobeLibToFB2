@@ -6,5 +6,6 @@
       "path": "src-tauri/tauri.conf.json",
       "jsonpath": "$.version"
     }
-  ]
+  ],
+  ".": "0.2.0-alpha"
 }
