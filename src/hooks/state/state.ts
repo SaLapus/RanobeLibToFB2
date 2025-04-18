@@ -15,7 +15,8 @@ export interface Chapter extends ChapterInfo {
   chapterFirstID: number;
   chapterSecondID?: number;
 }
-interface InfoState {
+
+export interface InfoState {
   slug: string | undefined;
   setSlug: (slug: string) => Promise<void>;
 
