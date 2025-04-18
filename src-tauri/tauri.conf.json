@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "identifier": "com.salapus.fb2creator",
   "build": {
-    "frontendDist": "../dist",
+    "frontendDist": "../dist/tauri",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "yarn vite:dev",
     "beforeBuildCommand": "yarn vite:tauri"
