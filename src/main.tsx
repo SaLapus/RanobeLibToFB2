@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import initFirebase from "./firebase.ts";
 
 declare global {
-  const __TARGET__: string;
+  let __TARGET__: string;
 }
 if (__TARGET__ === "web") {
   initFirebase();
