@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { fetchQueryTitles, fetchTitleInfo, fetchChaptersInfo, fetchChapter } from "../utils/api";
+import { describe, expect, it } from "vitest";
+import {
+  fetchChapter,
+  fetchChaptersInfo,
+  fetchQueryTitles,
+  fetchTitleInfo,
+} from "../../../utils/api";
 
 // import { Root as QueryTitles } from "../types/api/QueryResponce";
 

@@ -59,5 +59,31 @@ export default defineConfig((config) => {
         displayName: process.env.NODE_ENV !== "production",
       }),
     ],
+
+    test: {
+      globals: true,
+      environment: "happy-dom",
+      setupFiles: ["./src/tests/setup.ts"],
+      include: ["src/**/*.{test,spec}.{js,jsx,ts,tsx}"],
+      exclude: ["node_modules", "dist"],
+      reporters: ["verbose"],
+      coverage: {
+        provider: "v8",
+        reporter: ["text", "json", "html"],
+        include: ["src/**/*.{js,jsx,ts,tsx}"],
+        exclude: [
+          "src/**/*.{test,spec}.{js,jsx,ts,tsx}",
+          "src/types/**",
+          "src/tests/**",
+        ],
+      },
+      server: {
+        deps: {
+          inline: ["jest-axe", "@testing-library/jest-dom"],
+        },
+      },
+
+      testTimeout: 10000,
+    },
   };
 });
