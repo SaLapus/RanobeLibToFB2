@@ -5,7 +5,7 @@ import reactLogo from '../assets/react.svg';
 describe('Asset imports', () => {
   it('loads React logo SVG correctly', () => {
     // Test that the SVG file is correctly imported as a URL
-    expect(reactLogo).toMatch(/^(?:data:|blob:|\/).+\.svg/);
+    expect(reactLogo).toMatch(/^(?:data:|blob:|http:|https:|\/).+\.svg$/);
   });
 
   it('renders React logo SVG', () => {
@@ -13,7 +13,7 @@ describe('Asset imports', () => {
     const img = container.querySelector('img');
     
     expect(img).toBeTruthy();
-    expect(img?.src).toMatch(/^(?:data:|blob:|\/).+\.svg/);
+    expect(img?.src).toMatch(/^(?:data:|blob:|http:|https:|\/).+\.svg$/);
     expect(img?.alt).toBe('React logo');
   });
 });
