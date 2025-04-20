@@ -20,6 +20,22 @@ describe("Main entry point", () => {
   beforeEach(() => {
     // Reset document body before each test
     document.body.innerHTML = '<div id="root"></div>';
+
+    vi.resetModules();
+  });
+
+  it("creates root and renders App", async () => {
+    document.body.innerHTML = '<div id="root"></div>';
+    const rootElement = document.getElementById("root");
+
+    await import("../../main");
+
+    expect(createRoot).toHaveBeenCalledWith(rootElement);
+
+    expect(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      vi.mocked(createRoot).mock.results[0].value.render
+    ).toHaveBeenCalled();
   });
 
   it("initializes Firebase in web mode", async () => {
@@ -36,13 +52,5 @@ describe("Main entry point", () => {
     await import("../../main");
 
     expect(initFirebase).not.toHaveBeenCalled();
-  });
-
-  it("creates root and renders App", async () => {
-    const rootElement = document.getElementById("root");
-    await import("../../main");
-
-    expect(createRoot).toHaveBeenCalledWith(rootElement);
-    // expect(vi.mocked(createRoot).mock.results[0].value.render).toHaveBeenCalled();
   });
 });
