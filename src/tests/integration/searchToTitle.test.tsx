@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import App from '../../App';
 import type { QueryResult } from '../../types/api/QueryResponce';
 import * as api from '../../utils/api';
-import { mockChapters, mockTitleInfo, renderWithProviders } from '../utils/test-utils';
+import { mockChapters, mockTitleInfo, renderWithProviders } from '../test-utils';
 
 vi.mock('../../utils/api');
 vi.mock('../../hooks/state/state');
