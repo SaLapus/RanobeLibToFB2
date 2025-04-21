@@ -10,7 +10,7 @@ interface MockStore {
   deleteChapters: () => void;
 }
 
-vi.mock('../hooks/state/state', () => ({
+vi.mock('../../hooks/state/state', () => ({
   useInfoStore: vi.fn()
 }));
 
