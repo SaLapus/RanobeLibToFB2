@@ -46,7 +46,7 @@ const Spinner = styled.div<SpinnerProps>`
   }
 `;
 
-const ResultsContainer = styled.div`
+const ResultsContainer = styled.main`
   overflow-y: scroll;
 
   padding: 1em;

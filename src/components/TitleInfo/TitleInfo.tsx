@@ -34,6 +34,7 @@ export default function TitleInfo({
     if (!titleInfo || !chapters) return [];
 
     return [
+      ["Название", titleInfo.rus_name],
       ["Тип", titleInfo.type.label],
       ["Формат", titleInfo.model],
       ["Выпуск", titleInfo.releaseDateString],
