@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import App from '../../App';
 import { Search } from '../../pages/Search/Search';
 import { Title } from '../../pages/Title/Title';
-import { mockChapters, mockTitleInfo, renderWithProviders } from '../utils/test-utils';
+import { mockChapters, mockTitleInfo, renderWithProviders } from '../test-utils';
 
 vi.mock('../../hooks/state/state', () => ({
   useInfoStore: vi.fn()

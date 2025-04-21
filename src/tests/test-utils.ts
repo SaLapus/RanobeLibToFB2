@@ -1,8 +1,8 @@
 import { render } from "@testing-library/react";
 import { ReactElement } from "react";
 import { vi } from "vitest";
-import { type Chapter, useInfoStore } from "../../hooks/state/state";
-import type { TitleInfo } from "../../types/api/Title";
+import { type Chapter, useInfoStore } from "../hooks/state/state";
+import type { TitleInfo } from "../types/api/Title";
 
 export interface Store {
   slug: string | undefined;

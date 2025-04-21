@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { useInfoStore } from '../../hooks/state/state';
 import { Title } from '../../pages/Title/Title';
-import { mockChapters, mockTitleInfo } from '../utils/test-utils';
+import { mockChapters, mockTitleInfo } from '../test-utils';
 
 vi.mock('../hooks/state/state', () => ({
   useInfoStore: vi.fn()

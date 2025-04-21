@@ -4,7 +4,7 @@ import { Title } from '../../pages/Title/Title';
 import * as api from '../../utils/api';
 import * as parseChapters from '../../utils/parseChapters';
 import * as printBook from '../../utils/printBook';
-import { mockChapters, mockTitleInfo, renderWithProviders } from '../utils/test-utils';
+import { mockChapters, mockTitleInfo, renderWithProviders } from '../test-utils';
 
 // Mock dependencies
 vi.mock('../../utils/api');

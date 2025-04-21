@@ -2,7 +2,7 @@ import { fireEvent, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { Title } from '../../pages/Title/Title';
 import * as api from '../../utils/api';
-import { generateTestChapters, measurePerformance, mockTitleInfo, renderWithProviders } from '../utils/test-utils';
+import { generateTestChapters, measurePerformance, mockTitleInfo, renderWithProviders } from '../test-utils';
 
 vi.mock('../../utils/api');
 vi.mock('../../hooks/state/state');

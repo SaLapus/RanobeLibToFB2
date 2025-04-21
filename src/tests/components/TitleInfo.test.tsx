@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { TitleInfo } from '../../components/TitleInfo';
-import { mockChapters, mockTitleInfo } from '../utils/test-utils';
+import { mockChapters, mockTitleInfo } from '../test-utils';
 
 describe('TitleInfo component', () => {
   it('renders title info correctly', () => {
