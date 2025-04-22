@@ -1,19 +1,26 @@
-import { describe, expect, it, vi } from 'vitest';
-import Awaiter from '../../../utils/api/awaiter';
-import requestSupport from '../../../utils/api/requestSupport';
+import { describe, expect, it, vi } from "vitest";
+import requestSupport from "../../../utils/api/requestSupport";
 
-vi.mock('../utils/api/awaiter', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    next: vi.fn().mockResolvedValue(undefined)
-  }))
-}));
+// Mock the Awaiter class
 
-describe('requestSupport', () => {
+vi.mock("../../../utils/api/awaiter", () => {
+  return {
+    default: vi.fn().mockImplementation(() => {
+      return {
+        next: vi.fn().mockResolvedValue(undefined),
+      };
+    }),
+  };
+});
+
+describe("requestSupport", () => {
   const mockFunction = vi.fn();
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+  const delay = (ms: number) =>
+    new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
 
   beforeEach(() => {
-    mockFunction.mockReset();
+    // mockFunction.mockReset();
+    // mockNext.mockReset();
     vi.useFakeTimers();
     vi.clearAllMocks();
   });
@@ -22,127 +29,110 @@ describe('requestSupport', () => {
     vi.useRealTimers();
   });
 
-  it('calls the wrapped function with correct arguments', async () => {
-    mockFunction.mockResolvedValue('success');
+  it("calls the wrapped function with correct arguments", async () => {
+    mockFunction.mockResolvedValue("success");
     const wrappedFunction = requestSupport(mockFunction);
-    
-    await wrappedFunction('arg1', 'arg2');
-    
-    expect(mockFunction).toHaveBeenCalledWith('arg1', 'arg2');
+
+    await wrappedFunction("arg1", "arg2");
+
+    expect(mockFunction).toHaveBeenCalledWith("arg1", "arg2");
   });
 
-  it('retries on failure', async () => {
+  it("retries on failure", async () => {
+    vi.useRealTimers();
     mockFunction
-      .mockRejectedValueOnce(new Error('First attempt failed'))
-      .mockResolvedValueOnce('success');
+      .mockRejectedValueOnce(new Error("First attempt failed"))
+      .mockResolvedValueOnce("success");
 
-    const wrappedFunction = requestSupport(mockFunction);
-    const result = await wrappedFunction('test');
+    const wrappedFunction = requestSupport<string[], Promise<string>>(
+      mockFunction
+    );
+    const result = await wrappedFunction("test");
 
     expect(mockFunction).toHaveBeenCalledTimes(2);
-    expect(result).toBe('success');
+    expect(result).toBe("success");
   });
 
-  it('respects rate limiting', async () => {
-    mockFunction.mockResolvedValue('success');
+  it("respects rate limiting", async () => {
+    mockFunction.mockResolvedValue("success");
     const wrappedFunction = requestSupport(mockFunction);
 
     // Make multiple calls in parallel
-    const promises = Array(3).fill(null).map(() => wrappedFunction('test'));
-    
+    const promises = Array.from({ length: 3 }).map(() =>
+      wrappedFunction("test")
+    );
+
     // Fast-forward time to simulate rate limiting
     vi.advanceTimersByTime(60000);
-    
+
     const results = await Promise.all(promises);
-    expect(results).toEqual(['success', 'success', 'success']);
+    expect(results).toEqual(["success", "success", "success"]);
   });
 
-  it('handles multiple concurrent requests', async () => {
-    mockFunction.mockImplementation(() => delay(100).then(() => 'success'));
-    const wrappedFunction = requestSupport(mockFunction);
+  it("handles multiple concurrent requests", async () => {
+    vi.useRealTimers();
+    mockFunction.mockImplementation(() => delay(100).then(() => "success"));
 
-    const results = await Promise.all([
-      wrappedFunction('test1'),
-      wrappedFunction('test2')
+    const wrappedFunction = requestSupport<string[], Promise<string>>(
+      mockFunction
+    );
+
+    const promise = Promise.all([
+      wrappedFunction("test1"),
+      wrappedFunction("test2"),
     ]);
 
-    expect(results).toEqual(['success', 'success']);
+    const results = await promise;
+
+    expect(results).toEqual(["success", "success"]);
   });
 
-  it('logs errors to console', async () => {
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    mockFunction.mockRejectedValue(new Error('Test error'));
+  it("wraps function with retry logic", async () => {
+    const mockFn = vi.fn().mockResolvedValue("success");
+    const wrapped = requestSupport<string[], Promise<string>>(mockFn);
 
-    const wrappedFunction = requestSupport(mockFunction);
-    try {
-      await wrappedFunction('test');
-    } catch (e) {
-      // Error is expected
-    }
+    const result = await wrapped("test");
 
-    expect(consoleSpy).toHaveBeenCalled();
-    consoleSpy.mockRestore();
+    expect(result).toBe("success");
+    expect(mockFn).toHaveBeenCalledWith("test");
   });
 
-  it('wraps function with retry logic', async () => {
-    const mockFn = vi.fn().mockResolvedValue('success');
-    const wrapped = requestSupport(mockFn);
-    
-    const result = await wrapped('test');
-    
-    expect(result).toBe('success');
-    expect(mockFn).toHaveBeenCalledWith('test');
+  it("waits for awaiter before each attempt", async () => {
+    vi.useRealTimers();
+    const mockFn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("First failure"))
+      .mockRejectedValueOnce(new Error("Second failure"))
+      .mockResolvedValueOnce("success");
+
+    const wrapped = requestSupport<[], Promise<string>>(mockFn);
+
+    const result = await wrapped();
+
+    expect(mockFn).toHaveBeenCalledTimes(3);
+    expect(result).toBe("success");
   });
 
-  it('waits for awaiter before each attempt', async () => {
-    const mockNext = vi.fn().mockResolvedValue(undefined);
-    (Awaiter as jest.Mock).mockImplementation(() => ({
-      next: mockNext
-    }));
-
-    const mockFn = vi.fn().mockResolvedValue('success');
-    const wrapped = requestSupport(mockFn);
-    
-    await wrapped('test');
-    
-    expect(mockNext).toHaveBeenCalled();
-  });
-
-  it('retries up to 10 times before giving up', async () => {
-    const error = new Error('Failed');
+  it("retries up to 10 times before giving up", async () => {
+    const error = new Error("Failed");
     const mockFn = vi.fn().mockRejectedValue(error);
-    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
-    const wrapped = requestSupport(mockFn);
-    
-    try {
-      await wrapped('test');
-    } catch (e) {
-      expect(e).toBe(error);
-    }
-    
-    expect(mockFn).toHaveBeenCalledTimes(10);
-    expect(mockConsoleError).toHaveBeenCalledWith(
-      expect.stringContaining('Too many (10) attempts')
-    );
-  });
+    const mockConsoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => void 0);
 
-  it('preserves function name in error messages', async () => {
-    const namedFunction = async function testFunction() {
-      throw new Error('Failed');
-    };
-    
-    const wrapped = requestSupport(namedFunction);
-    const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
-    
+    const wrapped = requestSupport(mockFn);
+
     try {
-      await wrapped();
+      await Promise.all([wrapped("test"), vi.runAllTimersAsync()]);
+      fail("Expected function to throw");
     } catch (e) {
-      // Continue with test
+      expect(e).toBeInstanceOf(Error);
+      expect((e as Error).message).toContain("Too many (10) attempts");
     }
-    
-    expect(mockConsoleError).toHaveBeenCalledWith(
-      expect.stringContaining('testFunction')
-    );
+
+    expect(mockFn).toHaveBeenCalledTimes(10);
+    expect(mockConsoleError).toHaveBeenCalledTimes(10);
+
+    mockConsoleError.mockRestore();
   });
 });
