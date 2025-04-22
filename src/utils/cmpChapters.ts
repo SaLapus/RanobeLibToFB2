@@ -27,16 +27,20 @@ export function groupBy(
       return volumes;
     }
     case "number": {
-      const volumes: Record<string, Chapter[]> = {};
+      return Object.values(dict)
+        .reduce<Chapter[][]>((volumes, chapter, i) => {
+          const volumeId = Math.floor(i / num);
 
-      Object.values(dict).forEach((chapter, i) => {
-        if (!volumes[i / num]) volumes[i / num] = [];
-        volumes[i / num].push(chapter);
-      });
+          if (!volumes[volumeId]) volumes[volumeId] = [];
+          volumes[volumeId].push(chapter);
 
-      Object.values(volumes).forEach((volume) => volume.sort(sortChapters()));
-
-      return volumes;
+          return volumes;
+        }, [])
+        .map((volume) => volume.sort(sortChapters()))
+        .reduce<Record<string, Chapter[]>>((volumes, volume, i) => {
+          volumes[i] = volume;
+          return volumes;
+        }, {});
     }
   }
 }
