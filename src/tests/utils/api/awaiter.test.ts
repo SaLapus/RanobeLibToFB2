@@ -68,8 +68,7 @@ describe("Awaiter", () => {
     const promise1 = awaiter.next().then(() => results.push(1));
     const promise2 = awaiter.next().then(() => results.push(2));
 
-    vi.advanceTimersByTime(60000);
-    await Promise.all([promise1, promise2]);
+    await Promise.all([promise1, promise2, vi.runAllTimersAsync()]);
 
     expect(results).toEqual([1, 2]);
   });
