@@ -4,7 +4,7 @@ import { useInfoStore } from '../../hooks/state/state';
 import { Title } from '../../pages/Title/Title';
 import { mockChapters, mockTitleInfo } from '../test-utils';
 
-vi.mock('../hooks/state/state', () => ({
+vi.mock('../../hooks/state/state', () => ({
   useInfoStore: vi.fn()
 }));
 
