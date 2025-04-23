@@ -15,8 +15,8 @@
     "fix": "eslint --fix .",
     "preview": "vite preview",
     "prepare": "husky",
-    "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "test": "vitest run --silent=false",
+    "coverage": "vitest run --coverage --silent=false"
   },
   "dependencies": {
     "@tauri-apps/plugin-http": "^2.3.0",
