@@ -28,7 +28,7 @@ const SearchContainer = styled.nav`
 const SearchInput = styled.input``;
 
 interface SpinnerProps {
-  $loading: boolean;
+  "data-loading": boolean;
 }
 const Spinner = styled.div<SpinnerProps>`
   width: 20px;
@@ -37,7 +37,7 @@ const Spinner = styled.div<SpinnerProps>`
   border-top-color: var(--color-normal);
   border-radius: 50%;
   animation: spin 1.5s linear infinite;
-  display: ${(props) => (props.$loading ? "block" : "none")};
+  display: ${(props) => (props["data-loading"] ? "block" : "none")};
 
   @keyframes spin {
     to {
@@ -65,7 +65,11 @@ export function Search() {
   const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
 
   useEffect(() => {
-    if (!q) return;
+    if (q.length === 0) {
+      setLoading(false);
+      setSearchedNovels([]);
+      return;
+    }
 
     setLoading(true);
 
@@ -81,8 +85,9 @@ export function Search() {
         <label htmlFor="search">Поиск: </label>
         <SearchInput
           type={"search"}
-          autoComplete={"off"}
+          aria-label={"Поиск новеллы"}
           id={"search"}
+          autoComplete={"off"}
           placeholder="Искать вашу любимую новеллу"
           onChange={(e) => {
             if (timer.current) clearTimeout(timer.current);
@@ -93,7 +98,11 @@ export function Search() {
             }, 500);
           }}
         />
-        <Spinner $loading={loading}></Spinner>
+        <Spinner
+          role={"status"}
+          aria-label={"Загрузка"}
+          data-loading={loading}
+        />
       </SearchContainer>
 
       <ResultsContainer tabIndex={-1}>
