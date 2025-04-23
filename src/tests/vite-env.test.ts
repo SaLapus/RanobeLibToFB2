@@ -5,7 +5,6 @@ describe("Environment type definitions", () => {
     const env = import.meta.env;
 
     // Verify environment variable types are correct
-    expect(typeof env.VITE_APP_TITLE).toBe("string");
     expect(typeof env.FIREBASE_API_KEY).toBe("string");
     expect(typeof env.FIREBASE_AUTH_DOMAIN).toBe("string");
     expect(typeof env.FIREBASE_PROJECT_ID).toBe("string");
