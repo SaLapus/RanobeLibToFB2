@@ -43,8 +43,8 @@ export default async function parseChapter(
           const pNode = parseNode.bind(context);
 
           nodes = content.content.map((node) => pNode(node));
-        }
-        throw new Error("UNKNOWN CONTENT TYPE");
+        } else throw new Error("UNKNOWN CONTENT TYPE");
+        break;
       default:
         throw new Error("UNKNOWN CONTENT TYPE");
     }
@@ -122,9 +122,8 @@ function parseTextContent(
     if (/<img [\s\S]*?\/>/.test(text)) {
       try {
         if (this) {
-          const [, id, ext] = /<img [\s\S]*?src="[\S\s]*\/([\S\s]*)\.(\w+)" \/>/.exec(
-            text
-          )!;
+          const [, id, ext] =
+            /<img [\s\S]*?src="[\S\s]*\/([\S\s]*)\.(\w+)" \/>/.exec(text)!;
 
           this.imagesSRCs.push(`${id}.${ext}`);
           this.imageIDs.push(id);
