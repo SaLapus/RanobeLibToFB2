@@ -1,6 +1,6 @@
 import { css, cx } from "@linaria/core";
 import { CSSProperties, styled } from "@linaria/react";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Chapter, useInfoStore } from "../../hooks/state/state";
@@ -113,12 +113,8 @@ interface ChapterListProps {
 }
 
 export function ChapterList({ className, style, chapters }: ChapterListProps) {
-  const [toggleChapter, allChapters, deleteChapters] = useInfoStore(
-    useShallow((state) => [
-      state.toggleChapter,
-      state.allChapters,
-      state.deleteChapters,
-    ])
+  const [allChapters, deleteChapters] = useInfoStore(
+    useShallow((state) => [state.allChapters, state.deleteChapters])
   );
 
   const groupedChapters = useMemo(
@@ -143,6 +139,7 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
                 <label>
                   <input
                     type="checkbox"
+                    tabIndex={0}
                     className={"controls"}
                     name=""
                     id=""
@@ -159,34 +156,57 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
             <Line />
           </TableHead>
           <TableBody>
-            {groupedChapters.map((chapter, i) =>
-              useMemo(
-                () => (
-                  <ContentRow
-                    key={chapter.id}
-                    tabIndex={0}
-                    onClick={() => toggleChapter(chapter.id)}
-                    onKeyDown={(event) => {
-                      if (event.key === " " || event.key === "Enter") {
-                        event.preventDefault();
-                        toggleChapter(chapter.id);
-                      }
-                    }}
-                  >
-                    <Cell>
-                      <Checkbox checked={chapter.checked} />
-                    </Cell>
-                    <Cell>Том {chapter.volume}</Cell>
-                    <Cell>Глава {chapter.number}</Cell>
-                    <Cell>{chapter.name ? chapter.name : ""}</Cell>
-                  </ContentRow>
-                ),
-                [groupedChapters[i].checked]
-              )
-            )}
+            {groupedChapters.map((chapter) => (
+              <TableRow
+                key={chapter.id}
+                id={chapter.id}
+                checked={chapter.checked}
+                volume={chapter.volume}
+                number={chapter.number}
+                name={chapter.name}
+              />
+            ))}
           </TableBody>
         </TitleTable>
       </OverflowContainer>
     </div>
   );
 }
+
+interface ContentRowProps {
+  id: number;
+  checked: boolean;
+
+  volume: string;
+  number: string;
+  name: string;
+}
+const TableRow = memo(function TableRow({
+  id,
+  checked,
+  name,
+  number,
+  volume,
+}: ContentRowProps) {
+  const toggleChapter = useInfoStore((state) => state.toggleChapter);
+
+  return (
+    <ContentRow
+      tabIndex={0}
+      onClick={() => toggleChapter(id)}
+      onKeyDown={(event) => {
+        if (event.key === " " || event.key === "Enter") {
+          event.preventDefault();
+          toggleChapter(id);
+        }
+      }}
+    >
+      <Cell>
+        <Checkbox checked={checked} />
+      </Cell>
+      <Cell>Том {volume}</Cell>
+      <Cell>Глава {number}</Cell>
+      <Cell>{name ? name : ""}</Cell>
+    </ContentRow>
+  );
+});
