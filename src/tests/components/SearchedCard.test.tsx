@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { SearchedCard } from '../../components/SearchedCard';
 import { useInfoStore } from '../../hooks/state/state';
 
-vi.mock('../hooks/state/state', () => ({
+vi.mock('../../hooks/state/state', () => ({
   useInfoStore: vi.fn()
 }));
 
