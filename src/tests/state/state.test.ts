@@ -5,7 +5,7 @@ import type { Data as ChapterInfo } from "../../types/api/ChaptersInfo";
 import type { TitleInfo } from "../../types/api/Title";
 import * as api from "../../utils/api";
 
-vi.mock("../utils/api", () => ({
+vi.mock("../../utils/api", () => ({
   fetchTitleInfo: vi.fn(),
   fetchChaptersInfo: vi.fn(),
 }));
@@ -40,32 +40,34 @@ describe("InfoStore", () => {
       },
     ],
   };
+  const mockChapter: Partial<ChapterInfo> = {
+    id: 1,
+    volume: "1",
+    number: "1",
+    name: "Chapter 1",
+    index: 1,
+    item_number: 1,
+    branches_count: 1,
+    branches: [],
+  };
+
+  vi.mocked(api.fetchTitleInfo).mockResolvedValue(mockTitle as TitleInfo);
+  vi.mocked(api.fetchChaptersInfo).mockResolvedValue([
+    mockChapter as ChapterInfo,
+  ]);
 
   beforeEach(() => {
     const { result } = renderHook(() => useInfoStore());
+
     act(() => {
       result.current.deleteChapters();
     });
+
+    vi.clearAllMocks();
   });
 
   describe("setSlug", () => {
     it("fetches title and chapter info when setting slug", async () => {
-      const mockChapter: Partial<ChapterInfo> = {
-        id: 1,
-        volume: "1",
-        number: "1",
-        name: "Chapter 1",
-        index: 1,
-        item_number: 1,
-        branches_count: 1,
-        branches: [],
-      };
-
-      vi.mocked(api.fetchTitleInfo).mockResolvedValue(mockTitle as TitleInfo);
-      vi.mocked(api.fetchChaptersInfo).mockResolvedValue([
-        mockChapter as ChapterInfo,
-      ]);
-
       const { result } = renderHook(() => useInfoStore());
 
       await act(async () => {
@@ -87,6 +89,7 @@ describe("InfoStore", () => {
       });
 
       const chapters = result.current.chapters;
+
       if (!chapters) throw new Error("Chapters should be defined");
       const chapterId = Number(Object.keys(chapters)[0]);
 
@@ -94,7 +97,7 @@ describe("InfoStore", () => {
         result.current.toggleChapter(chapterId);
       });
 
-      expect(chapters[chapterId].checked).toBe(true);
+      expect(result.current.chapters?.[chapterId].checked).toBe(true);
     });
 
     it("selects all chapters", async () => {
