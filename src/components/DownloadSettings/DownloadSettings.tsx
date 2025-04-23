@@ -41,9 +41,9 @@ export default function DownloadSettings({
     // ИСПРАВИТЬ
     <div className={cx(className, container)} style={style}>
       <Button
-        tabIndex={-1}
+        tabIndex={0}
         onClick={() => {
-          if (chapters) parseChapterList({ chapters, slug, titleInfo });
+          if (chapters) void parseChapterList({ chapters, slug, titleInfo });
         }}
       >
         Скачать
@@ -58,31 +58,37 @@ interface PropsToParseChapters {
   titleInfo: TitleInfo;
 }
 
-function parseChapterList({ chapters, slug, titleInfo }: PropsToParseChapters) {
+async function parseChapterList({
+  chapters,
+  slug,
+  titleInfo,
+}: PropsToParseChapters) {
   const checkedChapters = Object.fromEntries(
     Object.entries(chapters).filter(([, chapter]) => chapter.checked)
   );
 
-  void Object.entries(groupBy("volume", checkedChapters)).map(
-    async ([volId, volume]) => {
-      const dowloadedVolume = await Promise.all(
-        volume.map((chapter) =>
-          fetchChapter(slug, undefined, chapter.volume, chapter.number).then(
-            parseChapter
+  return Promise.all(
+    Object.entries(groupBy("volume", checkedChapters)).map(
+      async ([volId, volume]) => {
+        const dowloadedVolume = await Promise.all(
+          volume.map((chapter) =>
+            fetchChapter(slug, undefined, chapter.volume, chapter.number).then(
+              parseChapter
+            )
           )
-        )
-      ).catch((reason) => {
-        console.error(reason);
+        ).catch((reason) => {
+          console.error(reason);
 
-        throw new Error("Fetching chapters error");
-      });
+          throw new Error("Fetching chapters error");
+        });
 
-      printBook(
-        titleInfo,
-        volId,
-        dowloadedVolume.map((chapter) => chapter.paragraphs),
-        dowloadedVolume.flatMap((chapter) => chapter.binaries)
-      );
-    }
+        printBook(
+          titleInfo,
+          volId,
+          dowloadedVolume.map((chapter) => chapter.paragraphs),
+          dowloadedVolume.flatMap((chapter) => chapter.binaries)
+        );
+      }
+    )
   );
 }
