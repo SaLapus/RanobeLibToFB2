@@ -9,19 +9,19 @@ import * as api from "../../utils/api";
 import * as parseChapters from "../../utils/parseChapters";
 import * as printBook from "../../utils/printBook";
 
-vi.mock("../hooks/state/state", () => ({
+vi.mock("../../hooks/state/state", () => ({
   useInfoStore: vi.fn(),
 }));
 
-vi.mock("../utils/api", () => ({
+vi.mock("../../utils/api", () => ({
   fetchChapter: vi.fn(),
 }));
 
-vi.mock("../utils/parseChapters", () => ({
+vi.mock("../../utils/parseChapters", () => ({
   default: vi.fn(),
 }));
 
-vi.mock("../utils/printBook", () => ({
+vi.mock("../../utils/printBook", () => ({
   default: vi.fn(),
 }));
 
@@ -91,7 +91,7 @@ describe("DownloadSettings component", () => {
     expect(screen.getByText("Скачать")).toBeInTheDocument();
   });
 
-  it("handles download when button is clicked", () => {
+  it("handles download when button is clicked", async () => {
     const mockChapterData: Partial<ChapterData> = {
       content: "test content",
       name: "Test Chapter",
@@ -130,14 +130,16 @@ describe("DownloadSettings component", () => {
     const downloadButton = screen.getByText("Скачать");
     fireEvent.click(downloadButton);
 
-    expect(api.fetchChapter).toHaveBeenCalledWith(
-      "test-slug",
-      undefined,
-      "1",
-      "1"
-    );
-    expect(parseChapters.default).toHaveBeenCalled();
-    expect(printBook.default).toHaveBeenCalled();
+    await vi.waitFor(() => {
+      expect(api.fetchChapter).toHaveBeenCalledWith(
+        "test-slug",
+        undefined,
+        "1",
+        "1"
+      );
+      expect(parseChapters.default).toHaveBeenCalled();
+      expect(printBook.default).toHaveBeenCalled();
+    });
   });
 
   it("returns null when no slug provided", () => {
