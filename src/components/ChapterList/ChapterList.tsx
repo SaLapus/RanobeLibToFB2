@@ -1,6 +1,6 @@
 import { css, cx } from "@linaria/core";
 import { CSSProperties, styled } from "@linaria/react";
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Chapter, useInfoStore } from "../../hooks/state/state";
@@ -136,3 +136,41 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
     </div>
   );
 }
+
+interface ContentRowProps {
+  id: number;
+  checked: boolean;
+
+  volume: string;
+  number: string;
+  name: string;
+}
+const TableRow = memo(function TableRow({
+  id,
+  checked,
+  name,
+  number,
+  volume,
+}: ContentRowProps) {
+  const toggleChapter = useInfoStore((state) => state.toggleChapter);
+
+  return (
+    <ContentRow
+      tabIndex={0}
+      onClick={() => toggleChapter(id)}
+      onKeyDown={(event) => {
+        if (event.key === " " || event.key === "Enter") {
+          event.preventDefault();
+          toggleChapter(id);
+        }
+      }}
+    >
+      <Cell>
+        <Checkbox checked={checked} />
+      </Cell>
+      <Cell>Том {volume}</Cell>
+      <Cell>Глава {number}</Cell>
+      <Cell>{name ? name : ""}</Cell>
+    </ContentRow>
+  );
+});

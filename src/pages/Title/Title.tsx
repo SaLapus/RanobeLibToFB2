@@ -64,6 +64,6 @@ export function Title() {
       <ChapterList className={chapterStyles} chapters={chapters} />
     </Layout>
   ) : (
-    <div>⚙️Грузимся</div>
+    <div role={"status"}>⚙️Грузимся</div>
   );
 }

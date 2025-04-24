@@ -1,9 +1,11 @@
 interface AwaiterOptions {
-  cap: number;
+  cap?: number;
+  timeoutMs?: number;
 }
 
 export default class Awaiter {
-  private cap = 50;
+  private cap: number;
+  private timeoutMs: number;
   private _current = 0;
   private queue: (() => void)[] = [];
 
@@ -16,16 +18,18 @@ export default class Awaiter {
     return this._current;
   }
 
-  constructor({ cap }: AwaiterOptions = { cap: 50 }) {
-    this.cap = cap;
+  constructor(options: AwaiterOptions = {}) {
+    this.cap = options.cap ?? 50;
+    this.timeoutMs = options.timeoutMs ?? 60_000;
   }
 
   async next() {
-    if (this.current >= this.cap) await new Promise((res) => this.queue.push(res as () => void));
+    if (this.current >= this.cap)
+      await new Promise<void>((res) => this.queue.push(res));
 
     this.current += 1;
     setTimeout(() => {
       this.current -= 1;
-    }, 60_000);
+    }, this.timeoutMs);
   }
 }
