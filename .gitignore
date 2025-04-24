@@ -26,3 +26,7 @@ books
 
 .yarn
 .firebase
+
+
+# Coverage result
+coverage
