@@ -6,6 +6,7 @@ const Checkbox = styled.div<{ checked: boolean }>`
   border: 2px solid
     ${(props) =>
       props.checked ? "var(--color-normal)" : "var(--font-primary)"};
+  margin: 5px;
   border-radius: 3px;
   background-color: ${(props) =>
     props.checked ? "var(--color-normal)" : "transparent"};
@@ -33,7 +34,5 @@ const Checkbox = styled.div<{ checked: boolean }>`
 //   const [status, toggle] = useState<boolean>(false);
 // }
 
-export {
-  Checkbox
-};
+export { Checkbox };
 
