@@ -1,18 +1,14 @@
 import { css, cx } from "@linaria/core";
 import { CSSProperties, styled } from "@linaria/react";
-import { memo, useMemo } from "react";
+import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Chapter, useInfoStore } from "../../hooks/state/state";
 import { groupBy } from "../../utils/cmpChapters";
-import { Checkbox } from "../utils";
 import {
-  ContentRow,
-  TableBody,
-  TableHead,
-  TitleTable,
+  TableHead
 } from "./TablePrimitives";
-import TableRow from "./TableRow";
+import VolumeRow from "./TableRow";
 
 const scrollContainer = css`
   height: 100%;
@@ -89,88 +85,10 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
   return (
     <div className={cx(scrollContainer, className)} style={style} tabIndex={-1}>
       <OverflowContainer tabIndex={-1}>
-        <TitleTable>
-          <MainTableHead />
-          <TableBody>
-            {groupedChapters.map(([id, volume]) => {
-              return (
-                <tr key={id}>
-                  <td>
-                    <Checkbox checked={true} />
-                  </td>
-                  <th colSpan={2}>Том {id}</th>
-                  <td>
-                    <svg
-                      className="dropdown-arrow"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                    >
-                      <path
-                        d="M2 4l4 4 4-4"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  </td>
-                </tr>
-              );
-              <ContentRow key={id}>
-                {volume.map((chapter) => (
-                  <TableRow
-                    key={chapter.id}
-                    id={chapter.id}
-                    checked={chapter.checked}
-                    volume={chapter.volume}
-                    number={chapter.number}
-                    name={chapter.name}
-                  />
-                ))}
-              </ContentRow>;
-            })}
-          </TableBody>
-        </TitleTable>
+      {groupedChapters.map(([id, volume]) => (
+              <VolumeRow key={id} id={id} volume={volume} />
+            ))}
       </OverflowContainer>
     </div>
   );
 }
-
-interface ContentRowProps {
-  id: number;
-  checked: boolean;
-
-  volume: string;
-  number: string;
-  name: string;
-}
-const TableRow = memo(function TableRow({
-  id,
-  checked,
-  name,
-  number,
-  volume,
-}: ContentRowProps) {
-  const toggleChapter = useInfoStore((state) => state.toggleChapter);
-
-  return (
-    <ContentRow
-      tabIndex={0}
-      onClick={() => toggleChapter(id)}
-      onKeyDown={(event) => {
-        if (event.key === " " || event.key === "Enter") {
-          event.preventDefault();
-          toggleChapter(id);
-        }
-      }}
-    >
-      <Cell>
-        <Checkbox checked={checked} />
-      </Cell>
-      <Cell>Том {volume}</Cell>
-      <Cell>Глава {number}</Cell>
-      <Cell>{name ? name : ""}</Cell>
-    </ContentRow>
-  );
-});

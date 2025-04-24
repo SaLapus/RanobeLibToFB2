@@ -1,4 +1,5 @@
 import { styled } from "@linaria/react";
+
 const TitleTable = styled.table`
   width: 100%;
 
@@ -39,14 +40,6 @@ const TableBody = styled.tbody``;
 const ContentRow = styled.tr`
   margin-inline: 2px;
   cursor: pointer;
-
-  &:hover {
-    background-color: var(--color-hover);
-  }
-
-  &:active {
-    background-color: var(--color-click);
-  }
 `;
 const Cell = styled.td`
   min-height: 2em;
