@@ -1,4 +1,3 @@
-import type { } from "@redux-devtools/extension"; // required for devtools typing\
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -25,9 +24,9 @@ export interface InfoState {
 
   chapters?: Record<number, Chapter>;
 
-  toggleChapter: (chapterID: number) => void;
-  allChapters: () => void;
-  deleteChapters: () => void;
+  toggleChapter: (chapterID: number | number[]) => void;
+  allChapters: (chapterID?: number | number[]) => void;
+  deleteChapters: (chapterID?: number | number[]) => void;
 }
 
 const useInfoStore = create<InfoState>()(
@@ -69,23 +68,46 @@ const useInfoStore = create<InfoState>()(
 
       toggleChapter: (chapterID) =>
         set((state: InfoState) => {
-          if (state.chapters)
-            state.chapters[chapterID].checked =
-              !state.chapters[chapterID].checked;
+          if (state.chapters) {
+            if (typeof chapterID === "number")
+              state.chapters[chapterID].checked =
+                !state.chapters[chapterID].checked;
+            else
+              chapterID.forEach((chapterID) => {
+                state.chapters![chapterID].checked =
+                  !state.chapters![chapterID].checked;
+              });
+          }
         }),
-      allChapters: () => {
+      allChapters: (chapterID) => {
         set((state: InfoState) => {
           if (state.chapters) {
-            for (const key of Object.keys(state.chapters))
-              state.chapters[key as unknown as number].checked = true;
+            if (chapterID) {
+              if (typeof chapterID === "number")
+                state.chapters[chapterID].checked = true;
+              else
+                chapterID.forEach((chapterID) => {
+                  state.chapters![chapterID].checked = true;
+                });
+            } else
+              for (const key of Object.keys(state.chapters))
+                state.chapters[key as unknown as number].checked = true;
           }
         });
       },
-      deleteChapters: () => {
+      deleteChapters: (chapterID) => {
         set((state: InfoState) => {
           if (state.chapters) {
-            for (const key of Object.keys(state.chapters))
-              state.chapters[key as unknown as number].checked = false;
+            if (chapterID) {
+              if (typeof chapterID === "number")
+                state.chapters[chapterID].checked = false;
+              else
+                chapterID.forEach((chapterID) => {
+                  state.chapters![chapterID].checked = false;
+                });
+            } else
+              for (const key of Object.keys(state.chapters))
+                state.chapters[key as unknown as number].checked = false;
           }
         });
       },
