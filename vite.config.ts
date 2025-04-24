@@ -22,6 +22,7 @@ export default defineConfig((config) => {
     },
     // Env variables starting with the item of `envPrefix` will be exposed in tauri's source code through `import.meta.env`.
     envPrefix: ["FIREBASE_", "VITE_", "TAURI_ENV_*"],
+
     build: {
       outDir: config.mode === "tauri" ? "dist/tauri" : "dist/web",
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
@@ -57,6 +58,10 @@ export default defineConfig((config) => {
       react(),
       wyw({
         displayName: process.env.NODE_ENV !== "production",
+        include: ["**/*.{ts,tsx}"],
+        babelOptions: {
+          presets: ["@babel/preset-typescript", "@babel/preset-react"],
+        },
       }),
     ],
 
@@ -66,10 +71,11 @@ export default defineConfig((config) => {
       setupFiles: ["./src/tests/setup.ts"],
       include: ["src/**/*.{test,spec}.{js,jsx,ts,tsx}"],
       exclude: ["node_modules", "dist"],
+      css: true,
       reporters: ["verbose"],
       coverage: {
         provider: "v8",
-        reporter: ["text", "json", "html"],
+        reporter: ["text", "json"],
         include: ["src/**/*.{js,jsx,ts,tsx}"],
         exclude: [
           "src/**/*.{test,spec}.{js,jsx,ts,tsx}",

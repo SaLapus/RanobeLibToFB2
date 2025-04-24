@@ -15,8 +15,8 @@
     "fix": "eslint --fix .",
     "preview": "vite preview",
     "prepare": "husky",
-    "test": "vitest run --silent=false",
-    "coverage": "vitest run --coverage --silent=false"
+    "test": "vitest run --silent=true",
+    "coverage": "vitest run --coverage --silent=true"
   },
   "dependencies": {
     "@tauri-apps/plugin-http": "^2.4.3",
@@ -30,6 +30,8 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.27.0",
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
     "@eslint/compat": "^1.2.8",
