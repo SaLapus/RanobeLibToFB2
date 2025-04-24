@@ -1,36 +1,41 @@
-import { fireEvent, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { Title } from '../../pages/Title/Title';
-import * as api from '../../utils/api';
-import { generateTestChapters, measurePerformance, mockTitleInfo, renderWithProviders } from '../test-utils';
+import { fireEvent, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { Title } from "../../pages/Title/Title";
+import * as api from "../../utils/api";
+import {
+  generateTestChapters,
+  measurePerformance,
+  mockTitleInfo,
+  renderWithProviders,
+} from "../test-utils";
 
-vi.mock('../../utils/api');
-vi.mock('../../hooks/state/state');
+vi.mock("../../utils/api");
+vi.mock("../../hooks/state/state");
 
-describe('Performance Tests', () => {
+describe("Performance Tests", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('handles large chapter lists efficiently', async () => {
+  it("handles large chapter lists efficiently", async () => {
     // Create a large dataset of 1000 chapters
     const largeChapterSet = generateTestChapters(1000);
 
     const { getByLabelText } = renderWithProviders(<Title />, {
       initialState: {
-        slug: 'test-slug',
+        slug: "test-slug",
         titleInfo: mockTitleInfo,
-        chapters: largeChapterSet
-      }
+        chapters: largeChapterSet,
+      },
     });
 
     const renderTime = await measurePerformance(() => {
       renderWithProviders(<Title />, {
         initialState: {
-          slug: 'test-slug',
+          slug: "test-slug",
           titleInfo: mockTitleInfo,
-          chapters: largeChapterSet
-        }
+          chapters: largeChapterSet,
+        },
       });
     });
 
@@ -38,7 +43,7 @@ describe('Performance Tests', () => {
     expect(renderTime).toBeLessThan(100);
 
     // Test select all performance
-    const selectAllCheckbox = getByLabelText('Выбрать все');
+    const selectAllCheckbox = getByLabelText("Выбрать все");
     const selectTime = await measurePerformance(() => {
       fireEvent.click(selectAllCheckbox);
     });
@@ -47,33 +52,40 @@ describe('Performance Tests', () => {
     expect(selectTime).toBeLessThan(50);
   });
 
-  it('efficiently handles parallel chapter downloads', async () => {
+  it("efficiently handles parallel chapter downloads", async () => {
     // Setup test data with 50 chapters
     const chapters = generateTestChapters(50);
     const checkedChapters = Object.fromEntries(
       Object.entries(chapters).map(([id, chapter]) => [
         id,
-        { ...chapter, checked: true }
+        { ...chapter, checked: true },
       ])
     );
 
     // Mock API calls with controlled timing
-    (api.fetchChapter as jest.Mock).mockImplementation(() => 
-      new Promise(resolve => setTimeout(() => resolve({
-        content: 'test content',
-        name: 'Test Chapter'
-      }), 50))
+    (api.fetchChapter as jest.Mock).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                content: "test content",
+                name: "Test Chapter",
+              }),
+            50
+          )
+        )
     );
 
     const { getByText } = renderWithProviders(<Title />, {
       initialState: {
-        slug: 'test-slug',
+        slug: "test-slug",
         titleInfo: mockTitleInfo,
-        chapters: checkedChapters
-      }
+        chapters: checkedChapters,
+      },
     });
 
-    const downloadButton = getByText('Скачать');
+    const downloadButton = getByText("Скачать");
     const downloadTime = await measurePerformance(async () => {
       fireEvent.click(downloadButton);
       await waitFor(() => {
@@ -86,29 +98,29 @@ describe('Performance Tests', () => {
     expect(downloadTime).toBeLessThan(50 * 50);
   });
 
-  it('maintains responsiveness during heavy operations', async () => {
+  it("maintains responsiveness during heavy operations", async () => {
     const chapters = generateTestChapters(100);
     const checkedChapters = Object.fromEntries(
       Object.entries(chapters).map(([id, chapter]) => [
         id,
-        { ...chapter, checked: true }
+        { ...chapter, checked: true },
       ])
     );
 
     const { getByText, getAllByRole } = renderWithProviders(<Title />, {
       initialState: {
-        slug: 'test-slug',
+        slug: "test-slug",
         titleInfo: mockTitleInfo,
-        chapters: checkedChapters
-      }
+        chapters: checkedChapters,
+      },
     });
 
     // Start heavy operation
-    const downloadButton = getByText('Скачать');
+    const downloadButton = getByText("Скачать");
     fireEvent.click(downloadButton);
 
     // Test UI responsiveness during download
-    const checkboxes = getAllByRole('checkbox');
+    const checkboxes = getAllByRole("checkbox");
     const responseTime = await measurePerformance(() => {
       fireEvent.click(checkboxes[1]); // Get first chapter checkbox
     });
