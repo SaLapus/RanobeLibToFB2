@@ -48,19 +48,19 @@ function Controls() {
 
   return (
     <ControlsContainer>
-          <label>
-            <input
-              type="checkbox"
-              tabIndex={0}
-              name=""
-              id=""
-              onChange={(event) => {
-                if (event.target.checked) allChapters();
-                else deleteChapters();
-              }}
-            />
-            Выбрать все
-          </label>
+      <label>
+        <input
+          type="checkbox"
+          tabIndex={0}
+          name=""
+          id=""
+          onChange={(event) => {
+            if (event.target.checked) allChapters();
+            else deleteChapters();
+          }}
+        />
+        Выбрать все
+      </label>
       <Line />
     </ControlsContainer>
   );
@@ -82,10 +82,30 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
     <div className={cx(scrollContainer, className)} style={style} tabIndex={-1}>
       <OverflowContainer tabIndex={-1}>
         <Controls />
-      {groupedChapters.map(([id, volume]) => (
-              <VolumeRow key={id} id={id} volume={volume} />
-            ))}
+        {groupedChapters.map(([id, volume]) => (
+          <VolumeRow key={id} id={id} volume={volume} />
+        ))}
       </OverflowContainer>
     </div>
   );
 }
+
+/** ChapterList TODOs
+ * Layout & Visual:
+ * TODO: Fix chapters <li> elements overlapping each other
+ * TODO: Fix chapters overflowing in volume containers
+ * 
+ * Performance Optimizations:
+ * TODO: Implement virtualization for large chapter lists
+ * TODO: Add pagination or infinite scroll for better memory management
+ * TODO: Cache expanded/collapsed state of volumes
+ * 
+ * User Experience:
+ * TODO: Add keyboard navigation between chapters
+ * TODO: Implement drag-select for multiple chapters
+ * TODO: Add search/filter functionality for chapters
+ * 
+ * Accessibility Enhancements:
+ * TODO: Improve ARIA labels and roles
+ * TODO: Add screen reader announcements for state changes
+ */

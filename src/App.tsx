@@ -73,14 +73,16 @@ const AppHeader = styled.header`
   height: min-content;
 `;
 
-/** TO DO
- * 3. ChapterList
- * - Improve speed
- * - Find problem of re-renders
- *
- * 4. Errors
- * - Add modals when error occurs
- * - Add loading spinner when fetching data
+/** Global TODOs
+ * Performance improvements:
+ * TODO: Implement lazy loading for main components
+ * TODO: Add proper loading states and transitions
+ * TODO: Optimize re-renders with memo and useCallback
+ * 
+ * Code organization:
+ * TODO: Extract common styles to shared components
+ * TODO: Create theme provider for consistent styling
+ * TODO: Add error boundary components
  */
 
 export default function App() {
