@@ -4,10 +4,9 @@ import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { Chapter, useInfoStore } from "../../hooks/state/state";
+
 import { groupBy } from "../../utils/cmpChapters";
-import {
-  TableHead
-} from "./TablePrimitives";
+
 import VolumeRow from "./TableRow";
 
 const scrollContainer = css`
@@ -24,7 +23,17 @@ const OverflowContainer = styled.div`
 
   width: calc(100% + 20px);
 `;
-const Line = styled.tr`
+
+const ControlsContainer = styled.div`
+  height: min-content;
+
+  position: sticky;
+  top: 0;
+
+  background-color: white;
+`;
+
+const Line = styled.div`
   width: 100vw;
   height: 2px;
   background-color: var(--color-normal);
@@ -32,27 +41,17 @@ const Line = styled.tr`
   position: absolute;
 `;
 
-function MainTableHead() {
+function Controls() {
   const [allChapters, deleteChapters] = useInfoStore(
     useShallow((state) => [state.allChapters, state.deleteChapters])
   );
 
   return (
-    <TableHead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Том</th>
-        <th scope="col">Глава</th>
-        <th scope="col">Название</th>
-      </tr>
-
-      <tr className="controls">
-        <td colSpan={4}>
+    <ControlsContainer>
           <label>
             <input
               type="checkbox"
               tabIndex={0}
-              className={"controls"}
               name=""
               id=""
               onChange={(event) => {
@@ -62,11 +61,8 @@ function MainTableHead() {
             />
             Выбрать все
           </label>
-        </td>
-      </tr>
-
       <Line />
-    </TableHead>
+    </ControlsContainer>
   );
 }
 
@@ -85,6 +81,7 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
   return (
     <div className={cx(scrollContainer, className)} style={style} tabIndex={-1}>
       <OverflowContainer tabIndex={-1}>
+        <Controls />
       {groupedChapters.map(([id, volume]) => (
               <VolumeRow key={id} id={id} volume={volume} />
             ))}
