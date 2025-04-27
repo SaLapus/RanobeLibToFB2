@@ -6,8 +6,8 @@ import { type Chapter, useInfoStore } from "../../hooks/state/state";
 
 interface MockStore {
   toggleChapter: (chapterId: number) => void;
-  allChapters: () => void;
-  deleteChapters: () => void;
+  allChapters: (chapterIds?: number[]) => void;
+  deleteChapters: (chapterIds?: number[]) => void;
 }
 
 vi.mock("../../hooks/state/state", () => ({
@@ -51,6 +51,7 @@ describe("ChapterList component", () => {
   const mockDeleteChapters = vi.fn();
 
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.mocked(
       useInfoStore as UseBoundStore<StoreApi<MockStore>>
     ).mockImplementation((selector) =>
@@ -62,40 +63,67 @@ describe("ChapterList component", () => {
     );
   });
 
-  it("renders chapter list correctly", () => {
+  it("renders volume and chapter list correctly", () => {
     render(<ChapterList chapters={mockChapters} />);
 
-    const rows = screen.getAllByRole('row');
-    expect(rows).toHaveLength(5); // Header row + controls row + separator row + 2 chapter rows
-    expect(screen.getByText("Chapter 1")).toBeInTheDocument();
-    expect(screen.getByText("Chapter 2")).toBeInTheDocument();
+    expect(screen.getByText("Том 1")).toBeInTheDocument();
+
+    // Click volume to expand chapters
+    fireEvent.click(screen.getByText("Том 1").nextElementSibling!);
+
+    expect(screen.getByText("Глава 1")).toBeInTheDocument();
+    expect(screen.getByText("Глава 2")).toBeInTheDocument();
+  });
+
+  it("toggles chapter visibility when volume arrow is clicked", () => {
+    render(<ChapterList chapters={mockChapters} />);
+
+    // Initially chapters should not be visible
+    expect(screen.queryByText("Глава 1")).not.toBeInTheDocument();
+
+    // Click volume arrow to expand
+    fireEvent.click(screen.getByText("Том 1").nextElementSibling!);
+    expect(screen.getByText("Глава 1")).toBeInTheDocument();
+
+    // Click again to collapse
+    fireEvent.click(screen.getByText("Том 1").nextElementSibling!);
+    expect(screen.queryByText("Глава 1")).not.toBeInTheDocument();
   });
 
   it("toggles chapter when clicked", () => {
     render(<ChapterList chapters={mockChapters} />);
 
-    const chapterRow = screen.getByText("Chapter 1").closest("tr");
-    fireEvent.click(chapterRow!);
+    // Expand volume first
+    fireEvent.click(screen.getByText("Том 1").nextElementSibling!);
+
+    // Click on chapter
+    const chapter = screen.getByText("Глава 1");
+    fireEvent.click(chapter.closest("li")!);
 
     expect(mockToggleChapter).toHaveBeenCalledWith(1);
   });
 
-  it('selects all chapters when "Выбрать все" is checked', () => {
+  it("selects all chapters in volume when volume checkbox is clicked", () => {
     render(<ChapterList chapters={mockChapters} />);
 
-    const selectAllCheckbox = screen.getByLabelText("Выбрать все");
-    fireEvent.click(selectAllCheckbox);
+    const volumeElement = screen.getByText("Том 1").closest("li")!;
+    fireEvent.click(volumeElement);
 
-    expect(mockAllChapters).toHaveBeenCalled();
+    expect(mockAllChapters).toHaveBeenCalledWith([1, 2]);
   });
 
-  it('deselects all chapters when "Выбрать все" is unchecked', () => {
-    render(<ChapterList chapters={mockChapters} />);
+  it("deselects all chapters in volume when volume checkbox is clicked and all chapters are selected", () => {
+    const selectedChapters = {
+      ...mockChapters,
+      1: { ...mockChapters[1], checked: true },
+      2: { ...mockChapters[2], checked: true },
+    };
 
-    const selectAllCheckbox = screen.getByLabelText("Выбрать все");
-    fireEvent.click(selectAllCheckbox);
-    fireEvent.click(selectAllCheckbox);
+    render(<ChapterList chapters={selectedChapters} />);
 
-    expect(mockDeleteChapters).toHaveBeenCalled();
+    const volumeElement = screen.getByText("Том 1").closest("li")!;
+    fireEvent.click(volumeElement);
+
+    expect(mockDeleteChapters).toHaveBeenCalledWith([1, 2]);
   });
 });
