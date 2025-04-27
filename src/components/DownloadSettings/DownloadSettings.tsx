@@ -92,3 +92,21 @@ async function parseChapterList({
     )
   );
 }
+
+/** DownloadSettings TODOs
+ * Download Process:
+ * TODO: Implement progress tracking for downloads
+ * TODO: Add pause/resume functionality
+ * TODO: Handle network failures gracefully with retries
+ * TODO: Add batch size controls for parallel downloads
+ * 
+ * User Feedback:
+ * TODO: Show estimated time remaining
+ * TODO: Add download speed indicator
+ * TODO: Implement progress bar for each volume
+ * 
+ * Settings:
+ * TODO: Add configurable concurrent download limit
+ * TODO: Allow customizing output format options
+ * TODO: Add option to save download preferences
+ */

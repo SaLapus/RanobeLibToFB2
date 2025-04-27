@@ -5,6 +5,23 @@ import { SearchedCard } from "../../components/SearchedCard";
 
 import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
 
+/** Search TODOs
+ * Search Experience:
+ * TODO: Add search suggestions/autocomplete
+ * TODO: Implement search history
+ * TODO: Add advanced search filters (by type, status, year)
+ * 
+ * Performance:
+ * TODO: Implement debouncing for search input
+ * TODO: Cache recent search results
+ * TODO: Add pagination for search results
+ * 
+ * Error Handling:
+ * TODO: Add proper error states for failed searches
+ * TODO: Implement retry mechanism for failed API calls
+ * TODO: Show meaningful error messages to users
+ */
+
 // interface SearchProps {
 // }
 
