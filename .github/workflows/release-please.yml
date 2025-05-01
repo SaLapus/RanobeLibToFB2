@@ -3,7 +3,7 @@ name: release-please
 on:
   push:
     branches:
-      - ci
+      - some_branch
 
 permissions:
   contents: write
