@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-
+  "commit-search-depth": 30,
   "packages": {
     ".": {
       "changelog-path": "CHANGELOG.md",
@@ -10,12 +10,12 @@
         { "type": "json", "path": "test/test.json", "jsonpath": "$.version" },
         {
           "type": "json",
-          "path": "src-tauri/tauri.conf.json",
+          "path": "srctauri/tauri.conf.json",
           "jsonpath": "$.version"
         },
         {
           "type": "toml",
-          "path": "src-tauri/Cargo.toml",
+          "path": "srctauri/Cargo.toml",
           "jsonpath": "$.package.version"
         }
       ]
@@ -28,12 +28,12 @@
     { "type": "json", "path": "test/test.json", "jsonpath": "$.version" },
     {
       "type": "json",
-      "path": "src-tauri/tauri.conf.json",
+      "path": "srctauri/tauri.conf.json",
       "jsonpath": "$.version"
     },
     {
       "type": "toml",
-      "path": "src-tauri/Cargo.toml",
+      "path": "srctauri/Cargo.toml",
       "jsonpath": "$.package.version"
     }
   ]
