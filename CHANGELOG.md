@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/SaLapus/RanobeLibToFB2/compare/v1.0.0...v1.1.0) (2025-05-01)
+
+
+### Features
+
+* refactor ChapterList component and add TablePrimitives and TableRow for improved structure ([52182e0](https://github.com/SaLapus/RanobeLibToFB2/commit/52182e01339eeb35c2b308e4f2a081c5962f2902))
+* refactor ChapterList component and add TablePrimitives and TableRow for improved structure ([4a6a479](https://github.com/SaLapus/RanobeLibToFB2/commit/4a6a47935440126509eb943c9ef197f3224ce00c))
+
+
+### Bug Fixes
+
+* add role attribute for accessibility in loading status message ([0cc5ef9](https://github.com/SaLapus/RanobeLibToFB2/commit/0cc5ef97c5efeeab2894c9a1f1ff9fe6aec484d9))
+* add role attribute for accessibility in loading status message ([fb1bd53](https://github.com/SaLapus/RanobeLibToFB2/commit/fb1bd53c56823b1c2b5d4e5ea122afe78ceec0b2))
+* correct margin declaration and clean up export statement in Checkbox component ([1f26840](https://github.com/SaLapus/RanobeLibToFB2/commit/1f2684047fcd5ff6a90b287619281ef46f6d635d))
+* correct margin declaration and clean up export statement in Checkbox component ([b66bc75](https://github.com/SaLapus/RanobeLibToFB2/commit/b66bc75fede36dd0580e2016ab2663365aabf92e))
+* fix logic in groupBy function for 'number' case ([85d124e](https://github.com/SaLapus/RanobeLibToFB2/commit/85d124e50096e8e32c4c89f03f3dbc8c74adbe33))
+* fix logic in groupBy function for 'number' case ([7d53617](https://github.com/SaLapus/RanobeLibToFB2/commit/7d53617547f539b86c33db9eba86b97455e3ba72))
+* streamline requestSupport function by improving error handling and removing infinity loop ([2415d44](https://github.com/SaLapus/RanobeLibToFB2/commit/2415d44b8917e03b535f342eca0af6e4de9243a2))
+* streamline requestSupport function by improving error handling and removing infinity loop ([623ef2d](https://github.com/SaLapus/RanobeLibToFB2/commit/623ef2d8366b78ddcff6674851cc57370801ff6c))
+* update tabIndex for accessibility and ensure proper async handling in parseChapterList ([04f1f57](https://github.com/SaLapus/RanobeLibToFB2/commit/04f1f57bb442c4c49e6e49e6acb2e29c593f50be))
+* update tabIndex for accessibility and ensure proper async handling in parseChapterList ([bc873ff](https://github.com/SaLapus/RanobeLibToFB2/commit/bc873ff44bc207f19203212efec74eb82abf2eb7))
+
 ## [1.0.0](https://github.com/SaLapus/RanobeLibToFB2/compare/v0.2.0-alpha...v1.0.0) (2025-04-17)
 
 
