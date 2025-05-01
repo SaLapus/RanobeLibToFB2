@@ -10,12 +10,12 @@
         { "type": "json", "path": "test/test.json", "jsonpath": "$.version" },
         {
           "type": "json",
-          "path": "srctauri/tauri.conf.json",
+          "path": "'src-tauri/tauri.conf.json'",
           "jsonpath": "$.version"
         },
         {
           "type": "toml",
-          "path": "srctauri/Cargo.toml",
+          "path": "'src-tauri/Cargo.toml'",
           "jsonpath": "$.package.version"
         }
       ]
@@ -28,12 +28,12 @@
     { "type": "json", "path": "test/test.json", "jsonpath": "$.version" },
     {
       "type": "json",
-      "path": "srctauri/tauri.conf.json",
+      "path": "'src-tauri/tauri.conf.json'",
       "jsonpath": "$.version"
     },
     {
       "type": "toml",
-      "path": "srctauri/Cargo.toml",
+      "path": "'src-tauri/Cargo.toml'",
       "jsonpath": "$.package.version"
     }
   ]
