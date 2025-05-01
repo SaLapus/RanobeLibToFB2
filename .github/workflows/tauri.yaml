@@ -2,8 +2,6 @@ name: tauri
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
