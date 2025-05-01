@@ -3,7 +3,7 @@ name: release-please
 on:
   push:
     branches:
-      - some_branch
+      - ci
 
 permissions:
   contents: write
@@ -11,11 +11,8 @@ permissions:
 
 jobs:
   release-please:
-    runs-on: ubuntu-latest
+    runs-on: windows
     steps:
-      - name: Test
-        run: echo "text"
-
       - uses: googleapis/release-please-action@v4
         with:
           # this assumes that you have created a personal access token
