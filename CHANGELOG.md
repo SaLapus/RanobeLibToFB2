@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.1](https://github.com/SaLapus/RanobeLibToFB2/compare/fb2creator-v1.1.0...fb2creator-v1.1.1) (2025-05-01)
+
+
+### Bug Fixes
+
+* add role attribute for accessibility in loading status message ([0cc5ef9](https://github.com/SaLapus/RanobeLibToFB2/commit/0cc5ef97c5efeeab2894c9a1f1ff9fe6aec484d9))
+* correct margin declaration and clean up export statement in Checkbox component ([1f26840](https://github.com/SaLapus/RanobeLibToFB2/commit/1f2684047fcd5ff6a90b287619281ef46f6d635d))
+* fix logic in groupBy function for 'number' case ([85d124e](https://github.com/SaLapus/RanobeLibToFB2/commit/85d124e50096e8e32c4c89f03f3dbc8c74adbe33))
+* streamline requestSupport function by improving error handling and removing infinity loop ([2415d44](https://github.com/SaLapus/RanobeLibToFB2/commit/2415d44b8917e03b535f342eca0af6e4de9243a2))
+* test ([b0d462c](https://github.com/SaLapus/RanobeLibToFB2/commit/b0d462c879f45d11c2728cfcddc3ce15d2bdc134))
+* test2 ([2d22315](https://github.com/SaLapus/RanobeLibToFB2/commit/2d22315a5f8fa0588dd97fe39af570b8f23c9625))
+* test3 ([a788465](https://github.com/SaLapus/RanobeLibToFB2/commit/a7884659da5dacb364db194e941b60c9d149b17b))
+* test4 ([dd89166](https://github.com/SaLapus/RanobeLibToFB2/commit/dd891660b9c288f606479ecface227b2704c5971))
+* test5 ([5043c98](https://github.com/SaLapus/RanobeLibToFB2/commit/5043c98df2017183dbee593fa6743160fb5a0cbb))
+* test6 ([8a65140](https://github.com/SaLapus/RanobeLibToFB2/commit/8a65140eb52db4328f2f112e436f2f39c87bb42f))
+* test7 ([2c66fca](https://github.com/SaLapus/RanobeLibToFB2/commit/2c66fca1082a90e869f7c7cb5dc7544ede5ab7dd))
+* test8 ([acdda88](https://github.com/SaLapus/RanobeLibToFB2/commit/acdda885a996d45aff9901d27fc199a9dae30b0b))
+* update tabIndex for accessibility and ensure proper async handling in parseChapterList ([04f1f57](https://github.com/SaLapus/RanobeLibToFB2/commit/04f1f57bb442c4c49e6e49e6acb2e29c593f50be))
+* update versioning in release-please configuration and fix tagName format in tauri workflow ([7316d19](https://github.com/SaLapus/RanobeLibToFB2/commit/7316d19c8d1dfcd8719b205e782dcd1a6f6e738f))
+
 ## [1.1.0](https://github.com/SaLapus/RanobeLibToFB2/compare/v1.0.0...v1.1.0) (2025-05-01)
 
 
