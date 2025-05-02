@@ -1,5 +1,5 @@
 # FB2Creator TODO List
-*Last updated: April 27, 2025*
+*Last updated: May 2, 2025*
 
 ## Legend
 - [!] High Priority
@@ -9,8 +9,7 @@
 - [✓] Completed
 
 ## ChapterList Component
-- [*] Fix chapters `<li>` elements overlapping each other
-- [!] Fix chapters overflowing in volume containers
+- [✓] Fix chapters overflowing in volume containers
 - [#] Implement virtualization for large chapter lists
 - [#] Add pagination or infinite scroll for better memory management
 - [-] Add keyboard navigation between chapters
