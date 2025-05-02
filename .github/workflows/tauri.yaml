@@ -61,5 +61,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TAURI_TOKEN }}
         with:
-          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: __VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
           args: ${{ matrix.args }}
