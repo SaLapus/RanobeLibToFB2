@@ -62,6 +62,12 @@ export default function SearchedCard({ novel }: SearchedCardProps) {
       onClick={() => {
         void setSlug(novel.slug_url);
       }}
+      onKeyDown={(event) => {
+        if (event.key === " " || event.key === "Enter") {
+          event.preventDefault();
+          void setSlug(novel.slug_url);
+        }
+      }}
     >
       <CardImage
         src={novel.cover.thumb}
