@@ -1,11 +1,11 @@
 import { memo, useMemo, useState } from "react";
 
-import { Chapter, useInfoStore } from "../../hooks/state/state";
-import { Checkbox } from "../utils";
-
 import { css, CSSProperties, cx } from "@linaria/core";
 import { styled } from "@linaria/react";
 import { useShallow } from "zustand/shallow";
+
+import { Chapter, useInfoStore } from "../../hooks/state/state";
+import { Checkbox } from "../utils";
 
 interface ContentRowProps {
   id: number;
