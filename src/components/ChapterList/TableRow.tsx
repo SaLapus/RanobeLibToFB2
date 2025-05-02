@@ -130,7 +130,7 @@ const VolumeContent = css`
 
   &.opened {
     transition: max-height 500ms linear;
-    max-height: 100vh;
+    max-height: max-content;
   }
 `;
 const Chapters = css`
