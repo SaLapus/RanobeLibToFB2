@@ -7,6 +7,16 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig((config) => {
+  const OPTIONS = {
+    debug:
+      !!process.env.TAURI_ENV_DEBUG || process.env.NODE_ENV !== "production",
+    target:
+      config.mode === "web" || process.env.TAURI_ENV_PLATFORM === "windows"
+        ? "chrome115"
+        : "safari16",
+    outDir: config.mode === "tauri" ? "dist/tauri" : "dist/web",
+  };
+
   return {
     define: {
       __TARGET__: `"${config.mode}"`,
@@ -24,17 +34,15 @@ export default defineConfig((config) => {
     envPrefix: ["FIREBASE_", "VITE_", "TAURI_ENV_*"],
 
     build: {
-      outDir: config.mode === "tauri" ? "dist/tauri" : "dist/web",
+      outDir: OPTIONS.outDir,
       // Tauri uses Chromium on Windows and WebKit on macOS and Linux
-      target:
-        process.env.TAURI_ENV_PLATFORM == "windows" ? "chrome105" : "safari13",
+      // target: OPTIONS.target,
+      target: "safari16",
       // don't minify for debug builds
-      minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+      minify: !OPTIONS.debug ? "esbuild" : false,
       // produce sourcemaps for debug builds
       // sourcemap: !!process.env.TAURI_ENV_DEBUG,
-      sourcemap:
-        !!process.env.TAURI_ENV_DEBUG || process.env.NODE_ENV !== "production",
-
+      sourcemap: OPTIONS.debug,
       rollupOptions: {
         output: {
           manualChunks: (id) => {
