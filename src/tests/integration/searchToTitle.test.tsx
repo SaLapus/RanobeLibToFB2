@@ -1,7 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import App from '../../App';
-import type { QueryResult } from '../../types/api/QueryResponce';
 import * as api from '../../utils/api';
 import { mockChapters, mockTitleInfo, renderWithProviders } from '../test-utils';
 
@@ -9,7 +8,7 @@ vi.mock('../../utils/api');
 vi.mock('../../hooks/state/state');
 
 describe('Search to Title Flow Integration', () => {
-  const mockSearchResult: QueryResult[] = [{
+  const mockSearchResult = [{
     id: 1,
     rus_name: 'Test Novel',
     type: 'Novel',
