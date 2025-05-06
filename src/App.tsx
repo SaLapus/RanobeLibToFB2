@@ -1,8 +1,8 @@
 import { css } from "@linaria/core";
 import { styled } from "@linaria/react";
-import { useEffect } from "react";
 
 import { useInfoStore } from "./hooks/state/state";
+import { Layout } from "./utils/css/layers";
 
 import Search from "./pages/Search";
 import Title from "./pages/Title";
@@ -44,7 +44,6 @@ const globals = css`
     *::before,
     *::after {
       box-sizing: inherit;
-      height: 100%;
     }
 
     /* @font-face {
@@ -57,10 +56,10 @@ const globals = css`
 const AppLayout = styled.div`
   display: grid;
 
-  grid-template-rows: 60px 1fr;
+  grid-template-rows: ${Layout.App.Header} 1fr;
   grid-template-columns: 1fr;
 
-  height: 100vh;
+  height: ${Layout.Body};
 `;
 
 const AppHeader = styled.header`
@@ -69,8 +68,6 @@ const AppHeader = styled.header`
     text-align: center;
     margin-block: 0;
   }
-
-  height: min-content;
 `;
 
 /** Global TODOs
@@ -78,7 +75,7 @@ const AppHeader = styled.header`
  * TODO: Implement lazy loading for main components
  * TODO: Add proper loading states and transitions
  * TODO: Optimize re-renders with memo and useCallback
- * 
+ *
  * Code organization:
  * TODO: Extract common styles to shared components
  * TODO: Create theme provider for consistent styling
@@ -87,11 +84,6 @@ const AppHeader = styled.header`
 
 export default function App() {
   const slug = useInfoStore((state) => state.slug);
-
-  useEffect(() => {
-    console.log("effect fetch title");
-    console.log(slug);
-  }, [slug]);
 
   return (
     <AppLayout className={globals}>

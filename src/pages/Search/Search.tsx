@@ -1,21 +1,22 @@
 import { styled } from "@linaria/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { SearchedCard } from "../../components/SearchedCard";
 
 import { FetchedQueryTitle, fetchQueryTitles } from "../../utils/api";
+import { Layout } from "../../utils/css/layers";
 
 /** Search TODOs
  * Search Experience:
  * TODO: Add search suggestions/autocomplete
  * TODO: Implement search history
  * TODO: Add advanced search filters (by type, status, year)
- * 
+ *
  * Performance:
  * TODO: Implement debouncing for search input
  * TODO: Cache recent search results
  * TODO: Add pagination for search results
- * 
+ *
  * Error Handling:
  * TODO: Add proper error states for failed searches
  * TODO: Implement retry mechanism for failed API calls
@@ -30,7 +31,7 @@ const width = 40;
 const SearchContainer = styled.nav`
   --input-width: min(${width}em, 90vw);
 
-  height: max-content;
+  height: ${Layout.Search.Bar};
   width: var(--input-width);
   margin-inline: calc(50% - var(--input-width) / 2);
   padding-block: 1em;
@@ -41,7 +42,12 @@ const SearchContainer = styled.nav`
 
   place-content: center space-evenly;
 `;
+const SearchLayout = styled.div`
+  display: grid;
 
+  grid-template-rows: max-content auto;
+  grid-template-columns: 1fr;
+`;
 const SearchInput = styled.input``;
 
 interface SpinnerProps {
@@ -54,7 +60,7 @@ const Spinner = styled.div<SpinnerProps>`
   border-top-color: var(--color-normal);
   border-radius: 50%;
   animation: spin 1.5s linear infinite;
-  display: ${(props) => (props["data-loading"] ? "block" : "none")};
+  visibility: ${(props) => (props["data-loading"] ? "visible" : "hidden")};
 
   @keyframes spin {
     to {
@@ -75,14 +81,8 @@ const ResultsContainer = styled.main`
 `;
 
 export function Search() {
-  const [q, setQuery] = useState("");
-  const timer = useRef<NodeJS.Timeout | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
-
-  useEffect(() => {
-    if (q.length === 0) {
+  function setQuery(query: string) {
+    if (query.length === 0) {
       setLoading(false);
       setSearchedNovels([]);
       return;
@@ -90,14 +90,19 @@ export function Search() {
 
     setLoading(true);
 
-    void fetchQueryTitles(q).then((titles) => {
+    void fetchQueryTitles(query).then((titles) => {
       setLoading(false);
       setSearchedNovels(titles);
     });
-  }, [q]);
+  }
+
+  const timer = useRef<NodeJS.Timeout | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const [searchedNovels, setSearchedNovels] = useState<FetchedQueryTitle[]>([]);
 
   return (
-    <div>
+    <SearchLayout>
       <SearchContainer>
         <label htmlFor="search">Поиск: </label>
         <SearchInput
@@ -128,6 +133,6 @@ export function Search() {
             <SearchedCard key={title.id} novel={title} />
           ))}
       </ResultsContainer>
-    </div>
+    </SearchLayout>
   );
 }
