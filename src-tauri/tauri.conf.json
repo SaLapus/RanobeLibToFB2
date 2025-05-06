@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../dist/tauri",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": "yarn vite:dev",
+    "beforeDevCommand": "vite --mode=tauri",
     "beforeBuildCommand": "yarn vite:tauri"
   },
   "app": {

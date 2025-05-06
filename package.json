@@ -6,7 +6,7 @@
   "scripts": {
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
-    "vite:dev": "vite",
+    "vite:dev": "vite --mode=web",
     "vite:tauri": "tsc -b && vite build --mode tauri",
     "vite:web": "tsc -b && vite build --mode web",
     "vite:build": "tsc -b && vite build --mode web && vite build --mode tauri",
