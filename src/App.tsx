@@ -7,6 +7,18 @@ import { Layout } from "./utils/css/layers";
 import Search from "./pages/Search";
 import Title from "./pages/Title";
 
+/** Global TODOs
+ * Performance improvements:
+ * TODO: Implement lazy loading for main components
+ * TODO: Add proper loading states and transitions
+ * TODO: Optimize re-renders with memo and useCallback
+ *
+ * Code organization:
+ * TODO: Extract common styles to shared components
+ * TODO: Create theme provider for consistent styling
+ * TODO: Add error boundary components
+ */
+
 const globals = css`
   :global() {
     :root {

@@ -10,6 +10,26 @@ import { Layer } from "../../utils/css/layers";
 
 import VolumeRow from "./TableRow";
 
+/** ChapterList TODOs
+ * Layout & Visual:
+ * TODO: Fix chapters <li> elements overlapping each other
+ * TODO: Fix chapters overflowing in volume containers
+ *
+ * Performance Optimizations:
+ * TODO: Implement virtualization for large chapter lists
+ * TODO: Add pagination or infinite scroll for better memory management
+ * TODO: Cache expanded/collapsed state of volumes
+ *
+ * User Experience:
+ * TODO: Add keyboard navigation between chapters
+ * TODO: Implement drag-select for multiple chapters
+ * TODO: Add search/filter functionality for chapters
+ *
+ * Accessibility Enhancements:
+ * TODO: Improve ARIA labels and roles
+ * TODO: Add screen reader announcements for state changes
+ */
+
 const scrollContainer = css`
   height: 100%;
 
@@ -93,23 +113,3 @@ export function ChapterList({ className, style, chapters }: ChapterListProps) {
     </div>
   );
 }
-
-/** ChapterList TODOs
- * Layout & Visual:
- * TODO: Fix chapters <li> elements overlapping each other
- * TODO: Fix chapters overflowing in volume containers
- *
- * Performance Optimizations:
- * TODO: Implement virtualization for large chapter lists
- * TODO: Add pagination or infinite scroll for better memory management
- * TODO: Cache expanded/collapsed state of volumes
- *
- * User Experience:
- * TODO: Add keyboard navigation between chapters
- * TODO: Implement drag-select for multiple chapters
- * TODO: Add search/filter functionality for chapters
- *
- * Accessibility Enhancements:
- * TODO: Improve ARIA labels and roles
- * TODO: Add screen reader announcements for state changes
- */
